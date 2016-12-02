@@ -16,9 +16,14 @@ local function new(x, y, o, sx, sy)
 	t.y = y or 0
 	t.o = o or 0
 	t.sx = sx or 1
-	t.xy = sy or 1
+	t.sy = sy or 1
 
 	return t
+end
+
+function Transform:translate(x, y)
+	self.x = x
+	self.y = y
 end
 
 function Transform:clone()

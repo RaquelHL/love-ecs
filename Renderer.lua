@@ -18,8 +18,11 @@ local function new(texture, color)
 	return r
 end
 
-function Renderer:draw()
+function Renderer:init()
 	assert(self.go, self.name.." component has no GameObject")
+end
+
+function Renderer:draw()
 	love.graphics.setColor(self.color:value())
 	love.graphics.draw(self.texture, self.go.transform.x, self.go.transform.y, self.go.transform.o, self.go.transform.sx, self.go.transform.sy)
 

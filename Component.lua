@@ -16,6 +16,11 @@ local function new(...)
 	return comp
 end
 
+--(Opcional) Chamado quando o GameObject pai está sendo instanciado
+function Component:init()
+
+end
+
 --(Opcional) Chamado a cada love.update
 function Component:update(dt)
 
@@ -28,8 +33,8 @@ end
 
 --Retorna uma copia do componente
 function Component:clone()
-
+	return new()
 end
 
 --Faz com que seja possível chamar a função new assim: Component(); Ao inves de assim: Component.new()
-setmetatable(Component, {__call = function(_, ...) new(...) end})
+setmetatable(Component, {__call = function(_, ...) return new(...) end})

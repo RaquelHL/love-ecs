@@ -7,6 +7,7 @@
 GameObject = {}
 GameObject.__index = GameObject
 
+GameObject.debugCollider = false	--Desenha retangulos que representam a posição real dos colliders
 
 local function new(name, components)
 	components = components or {}
@@ -14,6 +15,7 @@ local function new(name, components)
 	setmetatable(go, GameObject)
 
 	go.isInstance = false
+	go.nInstances = 0	--Por enquanto só pra dar nome pras instancias
 	go.name = name or "GameObject"
 	go.components = {}
 
@@ -28,9 +30,19 @@ local function new(name, components)
 end
 
 function GameObject:addComponent(c)
+	if self.components[c.name] then
+		print("Tentou adiconar mais de um componente("..c.name..") do mesmo tipo!")
+		return
+	end
 	c.go = self
 	self.components[c.name] = c
 	self[c.name] = c
+end
+
+function GameObject:removeComponent(c)
+	local name = c.name or c
+	self.components[name] = nil
+	self[name] = nil
 end
 
 function GameObject:update(dt)
@@ -67,8 +79,10 @@ end
 
 function GameObject:newInstance(args)
 	args = args or {}
-	local go = GameObject()
+	local go = {}
+	go.components = {}
 	setmetatable(go, GameObject)
+
 	for k,v in pairs(self) do 	--Copia valores
 		if v ~= self.components then
 			go[k] = v
@@ -79,15 +93,27 @@ function GameObject:newInstance(args)
 		go:addComponent(c:clone())
 	end
 
-	go.name = args.name or self.name
+	self.nInstances = self.nInstances + 1
+
+	go.name = args.name or self.name..self.nInstances
 
 	if go.transform then
 		go.transform.x = args.x or go.transform.x
 		go.transform.y = args.y or go.transform.y
+		go.transform.o = args.o or go.transform.o
+		go.transform.sx = args.sx or go.transform.sx
+		go.transform.sy = args.sy or go.transform.sy
 	end
 
 	go.active = true
 	go.isInstance = true
+
+
+	for k,c in pairs(go.components) do
+		if c.init then
+			c:init()
+		end
+	end
 
 	return go
 end

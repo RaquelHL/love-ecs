@@ -1,8 +1,7 @@
 --[[
 	Componente PlayerInput
-	-> Atualiza a posição do jogador de acordo com as teclas pressionadas
-	-> Esse componente varia de jogo pra jogo
-	-> Tem jeito de deixar ele genérico pra todos os jogos, registrando eventos de teclas com callbacks, mas acho que só vai deixar mais confuso
+	-> Controla o CharacterMotor com a entrada do jogador
+	-> Requer um CharacterMotor pra funcionar
 ]]
 
 PlayerInput = {}
@@ -14,24 +13,30 @@ local function new()
 
 	pi.isComponent = true
 	pi.name = "input"
-	pi.speed = 100
 
 	return pi
 end
 
-function PlayerInput:update(dt)
+function PlayerInput:init()
 	assert(self.go, self.name.." component has no GameObject")
+	assert(self.go.characterMotor, self.name.." needs a CharacterMotor component")
+
+	self.motor = self.go.characterMotor
+
+end
+
+function PlayerInput:update(dt)
+	local changeX = 0
 	if (love.keyboard.isDown("left")) then
-		self.go.transform.x = self.go.transform.x - self.speed * dt
+		changeX = -1
 	end
 	if (love.keyboard.isDown("right")) then
-		self.go.transform.x = self.go.transform.x + self.speed * dt
+		changeX = 1
 	end
-	if (love.keyboard.isDown("up")) then
-		self.go.transform.y = self.go.transform.y - self.speed * dt
-	end
-	if (love.keyboard.isDown("down")) then
-		self.go.transform.y = self.go.transform.y + self.speed * dt
+	self.motor:move(changeX)
+
+	if (love.keyboard.isDown("up") and self.motor.isGrounded) then
+		self.motor:jump()
 	end
 end
 
