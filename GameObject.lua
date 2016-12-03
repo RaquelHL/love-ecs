@@ -7,7 +7,7 @@
 GameObject = {}
 GameObject.__index = GameObject
 
-GameObject.debugCollider = false	--Desenha retangulos que representam a posição real dos colliders
+GameObject.debugCollider = true	--Desenha retangulos que representam a posição real dos colliders
 
 local function new(name, components)
 	components = components or {}
