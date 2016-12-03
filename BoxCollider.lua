@@ -34,8 +34,8 @@ function BoxCollider:init()
 			self.h = self.go.renderer.texture:getHeight() * self.go.transform.sy
 		end
 	end
-
-	physics:add(self.go, self.go.transform.x, self.go.transform.y, self.w, self.h)
+	
+	physics:add(self.go, self.go.transform.x + self.offsetX, self.go.transform.y + self.offsetY, self.w, self.h)
 end
 
 function BoxCollider:draw()

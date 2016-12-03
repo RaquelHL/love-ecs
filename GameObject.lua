@@ -45,6 +45,20 @@ function GameObject:removeComponent(c)
 	self[name] = nil
 end
 
+function GameObject:init()
+	for k,c in pairs(self.components) do
+		if c.init then
+			c:init()
+		end
+	end
+	for k,ch in pairs(self.children) do
+		if ch.init then
+			ch:init(dt)
+		end
+	end
+
+end
+
 function GameObject:update(dt)
 	for k,c in pairs(self.components) do 	
 		if c.update then
@@ -72,7 +86,6 @@ function GameObject:draw()
 end
 
 function GameObject:addChild(ch)
-	assert(ch.isInstance, "Child must be a instance")
 	ch.parent = self
 	self.children[#self.children+1] = ch
 end
@@ -81,10 +94,11 @@ function GameObject:newInstance(args)
 	args = args or {}
 	local go = {}
 	go.components = {}
+	go.children = {}
 	setmetatable(go, GameObject)
 
 	for k,v in pairs(self) do 	--Copia valores
-		if v ~= self.components then
+		if v ~= self.components and v ~= self.children then
 			go[k] = v
 		end
 	end
@@ -92,10 +106,13 @@ function GameObject:newInstance(args)
 	for k,c in pairs(self.components) do
 		go:addComponent(c:clone())
 	end
+	for k,ch in pairs(self.children) do
+		go:addChild(ch)	
+	end
 
 	self.nInstances = self.nInstances + 1
 
-	go.name = args.name or self.name..self.nInstances
+	go.name = args.name or self.name..self.nInstances and self.nInstances > 1 or self.name
 
 	if go.transform then
 		go.transform.x = args.x or go.transform.x
@@ -109,11 +126,7 @@ function GameObject:newInstance(args)
 	go.isInstance = true
 
 
-	for k,c in pairs(go.components) do
-		if c.init then
-			c:init()
-		end
-	end
+	go:init()
 
 	return go
 end

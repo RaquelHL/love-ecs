@@ -13,12 +13,13 @@ require("CharacterMotor")
 require("Color")
 
 local bump = require("lib.bump")
+local bumpdebug = require("lib.bump_debug")
 
 local pprintList = {}
 
 function love.load()
 
-	physics = bump.newWorld(64)	--Tem que colocar isso em algum outro lugar
+	physics = bump.newWorld(128)	--Tem que colocar isso em algum outro lugar
 
 	love.graphics.setBackgroundColor(150,150,220)
 
@@ -26,16 +27,16 @@ function love.load()
 	smallBoxTex = love.graphics.newImage("textures/tile8.png")
 
 	boxGO = GameObject("box", {Renderer(boxTex), BoxCollider()})
-	smallBoxGO = GameObject("smallBox", {Renderer(smallBoxTex, Color.green), BoxCollider(), CharacterMotor(), PlayerInput()}):newInstance({x = 200})
+	smallBoxGO = GameObject("smallBox", {Renderer(smallBoxTex, Color.green), BoxCollider(), CharacterMotor(), PlayerInput()})
 
 	--Cria cena de teste
 	scene = Scene()
-	scene:addGO(boxGO:newInstance({x = 100, y = 100, sx = 2, sy = 2}))
-	scene:addGO(boxGO:newInstance({x = 228, y = 196, sx = 4, sy = 0.5}))
-	scene:addGO(boxGO:newInstance({x = 452, y = 100, sx = 0.5, sy = 1.5}))
-	scene:addGO(boxGO:newInstance({x = 250, y = 150, sx = 2.5, sy = 0.2}))
+	scene:loadMap("level1")	--Carrega um mapa da pasta maps
+
+	scene:addGO(smallBoxGO:newInstance({x = 400}))
+
+
 	
-	scene:addGO(smallBoxGO)
 
 end
 
@@ -46,6 +47,7 @@ end
 function love:draw()
 	scene:draw()
 
+	--bumpdebug.draw(physics)
 
 	love.graphics.setColor(0, 0, 0)
 	for i,v in ipairs(pprintList) do
