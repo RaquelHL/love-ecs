@@ -17,10 +17,10 @@ local function new()
 
 	--Propriedades ajustáveis
 
-	cm.jumpHeight = 2	--Sei lá em que unidade isso tá
+	cm.jumpHeight = 4	--Sei lá em que unidade isso tá
 	cm.jumpTime = 0.44	--Segundos
 
-	cm.speed = 2		--Velocidade de movimento
+	cm.speed = 5		--Velocidade de movimento
 
 
 	--Não mexer
@@ -57,7 +57,6 @@ function CharacterMotor:update(dt)
 			end
 			if (v.normal.y>0) then 	--Se a colisão está em cima, reseta a velocidade Y se negativa
 				self.speedY = math.max(0, self.speedY)
-				self.isGrounded = true
 			end
 		end
 	end
