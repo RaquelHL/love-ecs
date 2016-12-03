@@ -31,7 +31,7 @@ end
 
 function GameObject:addComponent(c)
 	if self.components[c.name] then
-		print("Tentou adiconar mais de um componente("..c.name..") do mesmo tipo!")
+		print("Tentou adicionar mais de um componente("..c.name..") do mesmo tipo!")
 		return
 	end
 	c.go = self

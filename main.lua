@@ -6,11 +6,13 @@ require("Scene")
 require("Transform")
 require("Renderer")
 require("BoxCollider")
+require("SpriteAnimator")
 require("PlayerInput")
 require("CharacterMotor")
 
 --Outros
 require("Color")
+ResourceMgr = require("ResourceManager")
 
 local bump = require("lib.bump")
 local bumpdebug = require("lib.bump_debug")
@@ -23,11 +25,13 @@ function love.load()
 
 	love.graphics.setBackgroundColor(150,150,220)
 
-	boxTex = love.graphics.newImage("textures/tile.png")
-	smallBoxTex = love.graphics.newImage("textures/tile8.png")
+	ResourceMgr.add("animsheet", "pixelChar")
+	boxTex = ResourceMgr.get("texture", "tile.png")
+	smallBoxTex = ResourceMgr.get("texture", "tile8.png")
+
 
 	boxGO = GameObject("box", {Renderer(boxTex), BoxCollider()})
-	smallBoxGO = GameObject("smallBox", {Renderer(smallBoxTex, Color.green), BoxCollider(), CharacterMotor(), PlayerInput()})
+	smallBoxGO = GameObject("smallBox", {Renderer(), SpriteAnimator("idle"), BoxCollider(), CharacterMotor(), PlayerInput()})
 
 	--Cria cena de teste
 	scene = Scene()
@@ -35,7 +39,7 @@ function love.load()
 
 	scene:addGO(smallBoxGO:newInstance({x = 400}))
 
-
+	pprint("Pressione Z para morrer", "morte")
 	
 
 end
@@ -50,13 +54,23 @@ function love:draw()
 	--bumpdebug.draw(physics)
 
 	love.graphics.setColor(0, 0, 0)
+	local j = 0
 	for i,v in ipairs(pprintList) do
-		love.graphics.print(v, 10, i*10)
+		love.graphics.print(v, 10, j*10)
+		pprintList[i] = nil
+		j = j + 1
 	end
-	pprintList = {}
+	for k,v in pairs(pprintList) do
+		love.graphics.print(v, 10, j*10)
+		j = j + 1
+	end
 end
 
 --Print para depurar valores contínuos
-function pprint(text)
-	pprintList[#pprintList+1] = text
+function pprint(text, name)
+	if name then
+		pprintList[name] = text
+	else
+		pprintList[#pprintList+1] = text
+	end
 end

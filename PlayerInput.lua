@@ -38,6 +38,9 @@ function PlayerInput:update(dt)
 	if (love.keyboard.isDown("up") and self.motor.isGrounded) then
 		self.motor:jump()
 	end
+	if (love.keyboard.isDown("z")) then
+		self.motor:die()
+	end
 end
 
 function PlayerInput:clone()

@@ -25,6 +25,12 @@ function bump_debug.draw(world)
       love.graphics.rectangle('line', l,t,w,h)
     end
   end
+
+  love.graphics.setColor(255, 255, 0, 255)
+  local items = world:getItems()
+  for k,v in pairs(items) do
+    love.graphics.rectangle("line", world:getRect(v))
+  end
 end
 
 return bump_debug

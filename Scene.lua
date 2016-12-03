@@ -40,8 +40,7 @@ function Scene:loadMap(name)
 	map.tiles = {}
 
 	for i,ts in ipairs(map.tilesets) do
-		local file = string.gsub(ts.image, "../", "", 1)
-		ts.texture = love.graphics.newImage(file)
+		ts.texture = ResourceMgr.get("tileset", ts.image)
 		local curID = ts.firstgid
 		ts.lastid = curID + ts.tilecount
 		for j=0, (ts.imageheight/ts.tileheight)-1 do
@@ -116,8 +115,9 @@ function Scene:loadMap(name)
 
 		end
 	end
-
-	love.graphics.setBackgroundColor(map.backgroundcolor)
+	if(map.backgroundcolor) then
+		love.graphics.setBackgroundColor(map.backgroundcolor)
+	end
 	love.window.setMode(map.width*map.tilewidth, map.height*map.tileheight, flags)
 end
 

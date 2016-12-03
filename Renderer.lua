@@ -13,6 +13,11 @@ local function new(texture, color)
 	r.isComponent = true
 	r.name = "renderer"
 	r.texture = texture
+
+	r.offsetX = 0
+	r.offsetY = 0
+	r.mirror = false
+
 	r.color = color or Color(255)
 
 	return r
@@ -24,8 +29,22 @@ end
 
 function Renderer:draw()
 	love.graphics.setColor(self.color:value())
-	love.graphics.draw(self.texture, self.go.transform.x, self.go.transform.y, self.go.transform.o, self.go.transform.sx, self.go.transform.sy)
-
+	local posX = self.go.transform.x + self.offsetX
+	local scaleX = self.go.transform.sx
+	if self.mirror then
+		scaleX = scaleX * -1
+		if (self.quad) then
+			local a, b, quadW = self.quad:getViewport()
+			posX = self.go.transform.x + quadW + self.offsetX
+		else
+			posX = self.go.transform.x + self.texture:getWidth() + self.offsetX			
+		end
+	end
+	if(self.quad) then
+		love.graphics.draw(self.texture, self.quad, posX, self.go.transform.y + self.offsetY, self.go.transform.o, scaleX, self.go.transform.sy)
+	else
+		love.graphics.draw(self.texture, posX, self.go.transform.y, self.go.transform.o, scaleX, self.go.transform.sy)
+	end
 end
 
 function Renderer:clone()

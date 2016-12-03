@@ -17,6 +17,8 @@ local function new()
 
 	--Propriedades ajustáveis
 
+	cm.isAlive = true
+
 	cm.jumpHeight = 4	--Sei lá em que unidade isso tá
 	cm.jumpTime = 0.44	--Segundos
 
@@ -41,7 +43,9 @@ function CharacterMotor:init()
 end
 
 function CharacterMotor:update(dt)
-	
+	if not self.isAlive then
+		return
+	end
 	pprint("speedY = "..self.speedY)
 
 	self.speedY = self.speedY + self.gravity*dt
@@ -65,14 +69,42 @@ function CharacterMotor:update(dt)
 end
 
 function CharacterMotor:move(dir)
+	if not self.isAlive then
+		return
+	end
+	if (self.go.animator) then		
+		if(self.isGrounded) then
+			if (dir ~= 0) then
+				if (self.go.animator.anim.name ~= "walk") then
+					self.go.animator:setAnim("walk")
+				end
+			else
+				if (self.go.animator.anim.name ~= "idle") then
+					self.go.animator:setAnim("idle")
+				end
+			end
+		end
+		if dir~=0 then
+			self.go.renderer.mirror = dir < 0
+		end
+	end
+
 	self.speedX = dir * self.speed
 end
 
 function CharacterMotor:jump()
+	if not self.isAlive then
+		return
+	end
 	self.speedY = - math.sqrt((2*self.gravity*self.jumpHeight))
+	self.go.animator:setAnim("jump")
 end
 
-
+function CharacterMotor:die()
+	self.isAlive = false
+	self.go.animator:setAnim("die")
+	pprint("Parabéns", "morte")
+end
 
 function CharacterMotor:clone()
 	return new()
