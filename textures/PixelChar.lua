@@ -73,7 +73,7 @@ return {
 		name = "die",
 		texture = texture,
 		size = 6,
-		timestep = 0.1,
+		timestep = 0.2,
 		loop = false,
 		tilewidht = 64,
 		tileheight = 64,

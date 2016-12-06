@@ -43,18 +43,21 @@ function CharacterMotor:init()
 end
 
 function CharacterMotor:update(dt)
-	if not self.isAlive then
-		return
-	end
 	pprint("speedY = "..self.speedY)
 
 	self.speedY = self.speedY + self.gravity*dt
-	local nX, nY, cols, n = physics:move(self.go, self.go.transform.x + self.speedX, self.go.transform.y + self.speedY)
+	local nX, nY, cols, n = physics:move(self.go, self.go.transform.x + self.speedX, self.go.transform.y + self.speedY, function(a, b) 
+		local charBase = a.transform.x+a.collider.w/2
+		if(b.collider.isSlope and a.transform.y < b.transform.y + b.collider.h) then
+	 		return "slope" 
+	 	else
+	 		return "slide"
+	 	end
+	end)
 	
 	self.isGrounded = false
 	if (n>0) then
 		for k,v in pairs(cols) do
-				pprint("v.normal = "..v.normal.x..","..v.normal.y)
 			if (v.normal.y<0) then 	--Se a colisão está em baixo, reseta a velocidade Y se positiva
 				self.speedY = math.min(0, self.speedY)
 				self.isGrounded = true
@@ -103,6 +106,8 @@ end
 function CharacterMotor:die()
 	self.isAlive = false
 	self.go.animator:setAnim("die")
+	self.speedX = 0
+	self.speedY = 0
 	pprint("Parabéns", "morte")
 end
 

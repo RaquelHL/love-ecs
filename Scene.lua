@@ -18,7 +18,6 @@ end
 
 function Scene:update(dt)
 	for k,go in pairs(self.gameObjects) do
-		--print("Updating ", go.name)
 		go:update(dt)
 	end
 end
@@ -45,8 +44,15 @@ function Scene:loadMap(name)
 		ts.lastid = curID + ts.tilecount
 		for j=0, (ts.imageheight/ts.tileheight)-1 do
 			for i=0, (ts.imagewidth/ts.tilewidth)-1 do
-				map.tiles[curID] = love.graphics.newQuad(i*ts.tilewidth, j*ts.tileheight, ts.tilewidth, ts.tileheight, ts.imagewidth, ts.imageheight)
+				map.tiles[curID] = {}
+				map.tiles[curID].quad = love.graphics.newQuad(i*ts.tilewidth, j*ts.tileheight, ts.tilewidth, ts.tileheight, ts.imagewidth, ts.imageheight)
 				curID = curID + 1
+			end
+		end
+
+		for k,t in pairs(ts.tiles) do
+			for k,p in pairs(t.properties) do
+				map.tiles[t.id+1][k] = p
 			end
 		end
 	end
@@ -75,28 +81,54 @@ function Scene:loadMap(name)
 
 		    for j=0,map.height-1 do
 		    	for i=0,map.width-1 do
+		    		local closeCollider = false
 		    		if(l.data[curTile] ~= 0) then
 			    		local tsID = getTileSet(l.data[curTile])
 			    		if not batchs[tsID] then 	--Só cria um batch pro tileset se ele for usado
 			    			batchs[tsID] = love.graphics.newSpriteBatch(map.tilesets[tsID].texture, map.width * map.height, "static")
 			    		end
-			    		batchs[tsID]:add(map.tiles[l.data[curTile]], i*map.tilewidth, j*map.tileheight)
+			    		batchs[tsID]:add(map.tiles[l.data[curTile]].quad, i*map.tilewidth, j*map.tileheight)
 
 			    		--Trata da criação do boxCollider
 
 			    		if(l.properties.collision) then
-				    		if(colW==0)then
-				    			colX = i*map.tilewidth
-				    			colY = j*map.tileheight
-				    		end
-				    		colW = colW + 1
+			    			if(map.tiles[l.data[curTile]].isSlope) then
+			    				local colliderGO = GameObject("col"..colCount, {BoxCollider(map.tilewidth, map.tileheight)})
+				    			colliderGO.transform.x = i*map.tilewidth
+				    			colliderGO.transform.y = j*map.tileheight
+				    			
+				    			colliderGO.collider.isSlope = true	
+				    			colliderGO.collider.rightY = map.tiles[l.data[curTile]].rightY
+				    			colliderGO.collider.leftY = map.tiles[l.data[curTile]].leftY
+
+				    			layerGO:addChild(colliderGO)
+				    			colCount = colCount + 1
+
+				    			closeCollider = true
+			    			else
+					    		if(colW==0)then
+					    			colX = i*map.tilewidth
+					    			colY = j*map.tileheight
+					    		end
+					    		colW = colW + 1
+					    	end
+
 				    	end
 			    	end
 
+
 			    	--Se tiver um tile vazio ou acabou o mapa, e os tiles anteriores tinham colisão, fecha um collider
-			    	if ((l.data[curTile] == 0 or i == (map.width-1)) and l.properties.collision and colW>0) then
+			    	nextTile = math.min(curTile+1, map.width*map.height-1)
+
+			    	if ((l.data[curTile] == 0 or i == (map.width-1) or closeCollider) and l.properties.collision and colW>0) then
 		    			colCount = colCount + 1
-		    			local colliderGO = GameObject("col"..colCount, {BoxCollider(colW*map.tilewidth, map.tileheight, colX, colY)})
+		    			local colliderGO = GameObject("col"..colCount, {BoxCollider(colW*map.tilewidth, map.tileheight)})
+		    			colliderGO.transform.x = colX
+		    			colliderGO.transform.y = colY
+		    			colliderGO.tileID = l.data[curTile]
+		    			if(l.data[curTile] == 21)then
+		    				colliderGO.isSlope = true	
+		    			end
 		    			layerGO:addChild(colliderGO)
 
 		    			colW = 0

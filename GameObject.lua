@@ -7,7 +7,9 @@
 GameObject = {}
 GameObject.__index = GameObject
 
-GameObject.debugCollider = true	--Desenha retangulos que representam a posição real dos colliders
+GameObject.debugCollider = false	--Desenha retangulos que representam a posição real dos colliders
+
+local nextID = 0;
 
 local function new(name, components)
 	components = components or {}
@@ -17,6 +19,8 @@ local function new(name, components)
 	go.isInstance = false
 	go.nInstances = 0	--Por enquanto só pra dar nome pras instancias
 	go.name = name or "GameObject"
+	go.id = nextID
+	nextID = nextID + 1
 	go.components = {}
 
 	go:addComponent(Transform()) --	Teoricamente todo gameObject precisa de um transform

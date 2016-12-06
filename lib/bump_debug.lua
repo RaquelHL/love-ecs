@@ -9,7 +9,7 @@ local function getCellRect(world, cx,cy)
 end
 
 function bump_debug.draw(world)
-  local cellSize = world.cellSize
+  --[[local cellSize = world.cellSize
   local font = love.graphics.getFont()
   local fontHeight = font:getHeight()
   local topOffset = (cellSize - fontHeight) / 2
@@ -24,12 +24,19 @@ function bump_debug.draw(world)
       love.graphics.setColor(255,255,255,10)
       love.graphics.rectangle('line', l,t,w,h)
     end
-  end
+  end]]
 
-  love.graphics.setColor(255, 255, 0, 255)
   local items = world:getItems()
   for k,v in pairs(items) do
+    if(v.collider.isSlope) then
+      love.graphics.setColor(255, 0, 255, 255)
+      local x, y, w, h = world:getRect(v)
+      
+      love.graphics.line(x, y+((1-v.collider.leftY)*h), x+w, y+((1-v.collider.rightY)*h))
+    end
+    love.graphics.setColor(255, 255, 0, 255)
     love.graphics.rectangle("line", world:getRect(v))
+    
   end
 end
 
