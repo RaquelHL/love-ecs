@@ -5,11 +5,9 @@
 ]]
 
 PlayerInput = Component("input")
+PlayerInput:require("characterMotor")
 
 function PlayerInput:init()
-	assert(self.go, self.name.." component has no GameObject")
-	assert(self.go.characterMotor, self.name.." needs a CharacterMotor component")
-
 	self.motor = self.go.characterMotor
 end
 

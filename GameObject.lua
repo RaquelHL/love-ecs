@@ -21,8 +21,9 @@ local function new(name, components)
 	go.name = name or "GameObject"
 	go.id = nextID
 	nextID = nextID + 1
-	go.toDestroy = false
 	go.components = {}
+
+	go.toDestroy = false
 
 	go:addComponent(Transform()) --	Teoricamente todo gameObject precisa de um transform
 	
@@ -52,9 +53,7 @@ end
 
 function GameObject:init()
 	for k,c in pairs(self.components) do
-		if c.init then
-			c:init()
-		end
+		c:initComp()
 	end
 	for k,ch in pairs(self.children) do
 		if ch.init then
@@ -66,7 +65,7 @@ end
 
 function GameObject:update(dt)
 	for k,c in pairs(self.components) do 	
-		if c.update then
+		if c.update  and not self.toDestroy then 	--Se um componente destruir o GO, os proximos componentes podem dar problema 
 			c:update(dt)
 		end
 	end
@@ -137,7 +136,7 @@ function GameObject:newInstance(args)
 end
 
 function GameObject:destroy()
- 	self.toDestroy = true
+	self.toDestroy = true
  	for k,c in pairs(self.components) do 	
  		if c.destroy then
  			c:destroy()
@@ -146,6 +145,7 @@ function GameObject:destroy()
  	for k,ch in pairs(self.children) do
  		ch:destroy()
  	end
+ 	self.scene:removeGO(self)
  end
 
 setmetatable(GameObject, {__call = function(_, ...) return new(...) end})

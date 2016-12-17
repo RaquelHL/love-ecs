@@ -2,6 +2,7 @@
 	SpriteAnimator
 ]]
 SpriteAnimator = Component("animator")
+SpriteAnimator:require("renderer")
 
 function SpriteAnimator:new(anim)
 	
@@ -14,10 +15,7 @@ function SpriteAnimator:new(anim)
 	return self
 end
 
-function SpriteAnimator:init()
-	assert(self.go, self.name.." component has no GameObject")
-	assert(self.go.renderer, self.name.." needs a renderer component")
-	
+function SpriteAnimator:init()	
 	if (self.anim) then
 		self:setAnim(self.anim.name)
 	end

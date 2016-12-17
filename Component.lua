@@ -30,6 +30,8 @@ local function new(name)
 	comp.isComponent = true
 	comp.name = name
 
+	comp.requiredComponents = {}
+
 	comp.clone = function(self)
 		newComp = {}
 		for k,v in pairs(self) do
@@ -51,6 +53,24 @@ local function new(name)
 		end
 	end
 	
+	comp.require = function(self, ...)
+		local args = {...}
+		for i,v in ipairs(args) do
+			self.requiredComponents[#self.requiredComponents+1] = v
+		end
+	end
+
+	comp.initComp = function(self)
+		assert(self.go, self.name.." component has no GameObject")
+		for i,v in ipairs(self.requiredComponents) do
+			assert(self.go[v], self.name.." needs a "..v.." component")
+		end
+
+		if (self.init) then
+			self:init()
+		end
+	end
+
 	setmetatable(comp, {__call = function(_, ...) return comp:newComp(...) end})
 	return comp
 end

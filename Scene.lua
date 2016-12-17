@@ -18,24 +18,24 @@ end
 
 function Scene:update(dt)
 	for k,go in pairs(self.gameObjects) do
-		if not go.toDestroy then
- 			go:update(dt)
- 		end
+		go:update(dt)
 	end
 end
 
 function Scene:draw()
 	for k,go in pairs(self.gameObjects) do
-		if not go.toDestroy then
  			go:draw()
- 		end
 	end
 end
 
 function Scene:addGO(go)
 	assert(go.isInstance, "GameObject needs to be an instance")
-	self.gameObjects[#self.gameObjects+1] = go
+	go.scene = self
+	self.gameObjects[go.id] = go
+end
 
+function Scene:removeGO(go)
+	self.gameObjects[go.id] = nil
 end
 
 function Scene:loadMap(name)

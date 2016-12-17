@@ -24,10 +24,6 @@ function Renderer:new(texture, color)
 	return self
 end
 
-function Renderer:init()
-	assert(self.go, self.name.." component has no GameObject")
-end
-
 function Renderer:draw()
 	love.graphics.setColor(self.color:value())
 	local posX = self.go.transform.x + self.offsetX

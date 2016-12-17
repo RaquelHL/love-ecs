@@ -4,6 +4,7 @@
 	-> Não faz muita coisa sozinho, precisa de outro componente pra controlar(Input ou uma IA)
 ]]
 CharacterMotor = Component("characterMotor")
+CharacterMotor:require("collider")
 
 function CharacterMotor:new()
 	self.isAlive = true
@@ -23,10 +24,7 @@ function CharacterMotor:new()
 	return self
 end
 
-function CharacterMotor:init()
-	assert(self.go, self.name.." component has no GameObject")
-	assert(self.go.collider, self.name.." needs a collider component")
-	
+function CharacterMotor:init()	
 	--Baseado em http://error454.com/2013/10/23/platformer-physics-101-and-the-3-fundamental-equations-of-platformers/
 	self.gravity = ((2*self.jumpHeight)/(self.jumpTime*self.jumpTime))
 end
