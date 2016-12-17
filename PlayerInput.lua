@@ -4,25 +4,13 @@
 	-> Requer um CharacterMotor pra funcionar
 ]]
 
-PlayerInput = {}
-PlayerInput.__index = PlayerInput
-
-local function new()
-	local pi = {}
-	setmetatable(pi, PlayerInput)
-
-	pi.isComponent = true
-	pi.name = "input"
-
-	return pi
-end
+PlayerInput = Component("input")
 
 function PlayerInput:init()
 	assert(self.go, self.name.." component has no GameObject")
 	assert(self.go.characterMotor, self.name.." needs a CharacterMotor component")
 
 	self.motor = self.go.characterMotor
-
 end
 
 function PlayerInput:update(dt)
@@ -42,9 +30,3 @@ function PlayerInput:update(dt)
 		self.motor:die()
 	end
 end
-
-function PlayerInput:clone()
-	return new()
-end
-
-setmetatable(PlayerInput, {__call = function(_, ...) return new(...) end})

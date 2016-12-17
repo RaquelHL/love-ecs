@@ -3,30 +3,25 @@
 	->  Desenha a textura na posição do objeto
 ]]
 
-Renderer = {}
-Renderer.__index = Renderer
+Renderer = Component("renderer")
 
-local function new(texture, color)
-	local r = {}
-	setmetatable(r, Renderer)
-
-	r.isComponent = true
-	r.name = "renderer"
+function Renderer:new(texture, color)
+	
 	if (type(texture)== "userdata") then
- 		r.texture = texture
+ 		self.texture = texture
  	else
  		if (type(texture) == "string") then
- 			r.texture = ResourceMgr.get("texture", texture)
+ 			self.texture = ResourceMgr.get("texture", texture)
  		end
  	end
 
-	r.offsetX = 0
-	r.offsetY = 0
-	r.mirror = false
+	self.offsetX = 0
+	self.offsetY = 0
+	self.mirror = false
 
-	r.color = color or Color(255)
+	self.color = color or Color(255)
 
-	return r
+	return self
 end
 
 function Renderer:init()
@@ -52,10 +47,3 @@ function Renderer:draw()
 		love.graphics.draw(self.texture, posX, self.go.transform.y, self.go.transform.o, scaleX, self.go.transform.sy)
 	end
 end
-
-function Renderer:clone()
-	return new(self.texture, self.color)
-end
-
-
-setmetatable(Renderer, {__call = function(_, ...) return new(...) end})

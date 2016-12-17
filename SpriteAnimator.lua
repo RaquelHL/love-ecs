@@ -1,23 +1,17 @@
 --[[
 	SpriteAnimator
 ]]
-SpriteAnimator = {}
-SpriteAnimator.__index = SpriteAnimator
+SpriteAnimator = Component("animator")
 
-local function new(anim)
-	local sa = {}
-	setmetatable(sa, SpriteAnimator)	
-
-	sa.isComponent = true
-	sa.name = "animator"
-
-	sa.lastUpdate = love.timer.getTime()
-	sa.curFrame = 1
+function SpriteAnimator:new(anim)
+	
+	self.lastUpdate = love.timer.getTime()
+	self.curFrame = 1
 
 	if anim then
-		sa:setAnim(anim)
+		self:setAnim(anim)
 	end
-	return sa
+	return self
 end
 
 function SpriteAnimator:init()
@@ -59,9 +53,3 @@ function SpriteAnimator:setAnim(name)
 		end
 	end
 end
-
-function SpriteAnimator:clone()
-	return new(self.anim.name)
-end
-
-setmetatable(SpriteAnimator, {__call = function(_, ...) return new(...) end})

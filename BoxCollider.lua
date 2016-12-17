@@ -3,24 +3,17 @@
 	-> Faz um retângulo para ser usado nas detecções de colisão
 	-> bump.lua só cuida de colisões com retangulos, sem rotação
 ]]
-BoxCollider = {}
-BoxCollider.__index = BoxCollider
+BoxCollider = Component("collider")
 
 
-local function new(w, h, offsetX, offsetY)
-	local col = {}
+function BoxCollider:new(w, h, offsetX, offsetY)
+	
+	self.w = w or 1
+	self.h = h or 1
+	self.offsetX = offsetX or 0
+	self.offsetY = offsetY or 0
 
-	setmetatable(col, BoxCollider)
-
-	col.isComponent = true
-	col.name = "collider"
-
-	col.w = w or 1
-	col.h = h or 1
-	col.offsetX = offsetX or 0
-	col.offsetY = offsetY or 0
-
-	return col
+	return self
 end
 
 function BoxCollider:init()
@@ -62,14 +55,9 @@ function BoxCollider:updateRect(x, y, w, h)
 	self.offsetY = y or self.offsetY
 	self.w = w or self.w
 	self.h = h or self.h
-	physics:update(self.go, self.go.transform.x + self.offsetX, self.go.transform.y + self.offsetY, self.w, self.h)end
-
-function BoxCollider:clone()
-	return new(self.w, self.h, self.offsetX, self.offsetY)
+	physics:update(self.go, self.go.transform.x + self.offsetX, self.go.transform.y + self.offsetY, self.w, self.h)
 end
 
 function BoxCollider:destroy()
 	physics:remove(self.go)
 end
-
-setmetatable(BoxCollider, {__call = function(_, ...) return new(...) end})

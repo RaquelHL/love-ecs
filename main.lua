@@ -3,6 +3,7 @@ require("GameObject")
 require("Scene")
 
 --Componentes
+require("Component")
 require("Transform")
 require("Renderer")
 require("BoxCollider")

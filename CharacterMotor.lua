@@ -1,37 +1,26 @@
 --[[
 	CharacterMotor
 	-> Controla a posição de um personagem
-	-> Não faz muita coisa sozinha, precisa de outro componente pra controlar(o jogador ou uma IA)
+	-> Não faz muita coisa sozinho, precisa de outro componente pra controlar(Input ou uma IA)
 ]]
-CharacterMotor = {}
-CharacterMotor.__index = CharacterMotor
+CharacterMotor = Component("characterMotor")
 
-
-
-local function new()
-	local cm = {}
-	setmetatable(cm, CharacterMotor)	
-
-	cm.isCharacterMotor = true
-	cm.name = "characterMotor"
+function CharacterMotor:new()
+	self.isAlive = true
 
 	--Propriedades ajustáveis
-
-	cm.isAlive = true
-
-	cm.jumpHeight = 4	--Sei lá em que unidade isso tá
-	cm.jumpTime = 0.44	--Segundos
-
-	cm.speed = 5		--Velocidade de movimento
+	self.jumpHeight = 4		-- Altura do pulo
+	self.jumpTime = 0.44	-- Segundos que o pulo dura
+	self.speed = 5			-- Velocidade de movimento
 
 
 	--Não mexer
-	cm.gravity = 0
-	cm.speedX = 0
-	cm.speedY = 0
-	cm.isGrounded = false
+	self.gravity = 0
+	self.speedX = 0
+	self.speedY = 0
+	self.isGrounded = false
 
-	return cm
+	return self
 end
 
 function CharacterMotor:init()
@@ -110,9 +99,3 @@ function CharacterMotor:die()
 	self.speedY = 0
 	pprint("Parabéns", "morte")
 end
-
-function CharacterMotor:clone()
-	return new()
-end
-
-setmetatable(CharacterMotor, {__call = function(_, ...) return new(...) end})
