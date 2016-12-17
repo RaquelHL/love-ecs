@@ -18,13 +18,17 @@ end
 
 function Scene:update(dt)
 	for k,go in pairs(self.gameObjects) do
-		go:update(dt)
+		if not go.toDestroy then
+ 			go:update(dt)
+ 		end
 	end
 end
 
 function Scene:draw()
 	for k,go in pairs(self.gameObjects) do
-		go:draw()
+		if not go.toDestroy then
+ 			go:draw()
+ 		end
 	end
 end
 

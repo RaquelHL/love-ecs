@@ -4,7 +4,15 @@ local resources = {}
 
 local creatorFunctions = {
 	texture = function(name)
-		return love.graphics.newImage("textures/"..name)
+		local img = nil
+ 		if(love.filesystem.exists("textures/"..name)) then
+ 			img = love.graphics.newImage("textures/"..name)
+ 		else
+ 			if love.filesystem.exists("textures/"..name..".png") then
+ 				img = love.graphics.newImage("textures/"..name..".png")
+ 			end
+ 		end
+ 		return img
 	end,
 	tileset = function(name)
 		local file = string.gsub(name, "../", "", 1)

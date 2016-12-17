@@ -68,4 +68,8 @@ function BoxCollider:clone()
 	return new(self.w, self.h, self.offsetX, self.offsetY)
 end
 
+function BoxCollider:destroy()
+	physics:remove(self.go)
+end
+
 setmetatable(BoxCollider, {__call = function(_, ...) return new(...) end})

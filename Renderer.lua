@@ -12,7 +12,13 @@ local function new(texture, color)
 
 	r.isComponent = true
 	r.name = "renderer"
-	r.texture = texture
+	if (type(texture)== "userdata") then
+ 		r.texture = texture
+ 	else
+ 		if (type(texture) == "string") then
+ 			r.texture = ResourceMgr.get("texture", texture)
+ 		end
+ 	end
 
 	r.offsetX = 0
 	r.offsetY = 0
@@ -41,7 +47,7 @@ function Renderer:draw()
 		end
 	end
 	if(self.quad) then
-		love.graphics.draw(self.texture, self.quad, posX, self.go.transform.y + self.offsetY, self.go.transform.o, scaleX, self.go.transform.sy)
+		love.graphics.draw(self.texture, self.quad, math.floor(posX), math.floor(self.go.transform.y + self.offsetY), self.go.transform.o, scaleX, self.go.transform.sy)
 	else
 		love.graphics.draw(self.texture, posX, self.go.transform.y, self.go.transform.o, scaleX, self.go.transform.sy)
 	end

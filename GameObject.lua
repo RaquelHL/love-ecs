@@ -21,6 +21,7 @@ local function new(name, components)
 	go.name = name or "GameObject"
 	go.id = nextID
 	nextID = nextID + 1
+	go.toDestroy = false
 	go.components = {}
 
 	go:addComponent(Transform()) --	Teoricamente todo gameObject precisa de um transform
@@ -134,5 +135,17 @@ function GameObject:newInstance(args)
 
 	return go
 end
+
+function GameObject:destroy()
+ 	self.toDestroy = true
+ 	for k,c in pairs(self.components) do 	
+ 		if c.destroy then
+ 			c:destroy()
+ 		end
+ 	end
+ 	for k,ch in pairs(self.children) do
+ 		ch:destroy()
+ 	end
+ end
 
 setmetatable(GameObject, {__call = function(_, ...) return new(...) end})

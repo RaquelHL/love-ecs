@@ -28,11 +28,6 @@ function love.load()
 		return goalX, math.min(goalY,col.item.transform.y), cols, len
 	end
 	local slope = function(world, col, x,y,w,h, goalX, goalY, filter)
-  		
-		if(col.normal.y>0) then
-			--local cols, len = world:project(col.item, x,y,w,h, goalX, goalY, filter)
-			--return bump.responses.slide(world, col, x,y,w,h, goalX, goalY, filter)
-		end
 
 		col.normal = {x = 0, y = 0}	--Até provado o contrario, não teve realmente uma colisão
   		local range = math.abs(col.other.collider.rightY-col.other.collider.leftY)
@@ -61,7 +56,7 @@ function love.load()
 
 
 	boxGO = GameObject("box", {Renderer(boxTex), BoxCollider()})
-	smallBoxGO = GameObject("smallBox", {Renderer(), SpriteAnimator("idle"), BoxCollider(), CharacterMotor(), PlayerInput()})
+	smallBoxGO = GameObject("Player", {Renderer(), SpriteAnimator("idle"), BoxCollider(), CharacterMotor(), PlayerInput()})
 
 	--Cria cena de teste
 	scene = Scene()
