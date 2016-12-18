@@ -26,20 +26,21 @@ end
 
 function Renderer:draw()
 	love.graphics.setColor(self.color:value())
-	local posX = self.go.transform.x + self.offsetX
-	local scaleX = self.go.transform.sx
+	local posX = self.go.transform.pos.x + self.offsetX
+	local scaleX = self.go.transform.scale.x
+	local scaleY = self.go.transform.scale.y
 	if self.mirror then
 		scaleX = scaleX * -1
 		if (self.quad) then
 			local a, b, quadW = self.quad:getViewport()
-			posX = self.go.transform.x + quadW + self.offsetX
+			posX = self.go.transform.pos.x + quadW + self.offsetX
 		else
-			posX = self.go.transform.x + self.texture:getWidth() + self.offsetX			
+			posX = self.go.transform.pos.x + self.texture:getWidth() + self.offsetX			
 		end
 	end
 	if(self.quad) then
-		love.graphics.draw(self.texture, self.quad, math.floor(posX), math.floor(self.go.transform.y + self.offsetY), self.go.transform.o, scaleX, self.go.transform.sy)
+		love.graphics.draw(self.texture, self.quad, math.floor(posX), math.floor(self.go.transform.pos.y + self.offsetY), self.go.transform.o, scaleX, scaleY)
 	else
-		love.graphics.draw(self.texture, posX, self.go.transform.y, self.go.transform.o, scaleX, self.go.transform.sy)
+		love.graphics.draw(self.texture, posX, self.go.transform.pos.y, self.go.transform.o, scaleX, scaleY)
 	end
 end

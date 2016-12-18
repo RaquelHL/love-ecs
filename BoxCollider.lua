@@ -24,29 +24,29 @@ function BoxCollider:init()
 			if (self.go.renderer.quad) then
 				local x, y, w, h = self.go.renderer.quad:getViewport( )
 				if (self.w == -1) then
-					self.w = w * self.go.transform.sx
+					self.w = w * self.go.transform.scale.x
 				end
 				if (self.h == -1) then
-					self.h = h * self.go.transform.sy
+					self.h = h * self.go.transform.scale.y
 				end
 			else
 				if (self.w == -1) then
-					self.w = self.go.renderer.texture:getWidth() * self.go.transform.sx
+					self.w = self.go.renderer.texture:getWidth() * self.go.transform.scale.x
 				end
 				if (self.h == -1) then
-					self.h = self.go.renderer.texture:getHeight() * self.go.transform.sy
+					self.h = self.go.renderer.texture:getHeight() * self.go.transform.scale.y
 				end
 			end
 		end
 	end
 	
-	physics:add(self.go, self.go.transform.x + self.offsetX, self.go.transform.y + self.offsetY, self.w, self.h)
+	physics:add(self.go, self.go.transform.pos.x + self.offsetX, self.go.transform.pos.y + self.offsetY, self.w, self.h)
 end
 
 function BoxCollider:draw()
 	if self.go.debugCollider then
 		love.graphics.setColor(220, 50, 220)
-		love.graphics.rectangle("line", self.go.transform.x + self.offsetX, self.go.transform.y + self.offsetY, self.w, self.h)
+		love.graphics.rectangle("line", self.go.transform.pos.x + self.offsetX, self.go.transform.pos.y + self.offsetY, self.w, self.h)
 	end
 end
 
@@ -55,7 +55,7 @@ function BoxCollider:updateRect(x, y, w, h)
 	self.offsetY = y or self.offsetY
 	self.w = w or self.w
 	self.h = h or self.h
-	physics:update(self.go, self.go.transform.x + self.offsetX, self.go.transform.y + self.offsetY, self.w, self.h)
+	physics:update(self.go, self.go.transform.pos.x + self.offsetX, self.go.transform.pos.y + self.offsetY, self.w, self.h)
 end
 
 function BoxCollider:destroy()

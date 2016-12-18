@@ -13,6 +13,7 @@ require("CharacterMotor")
 
 --Outros
 require("Color")
+require("Vector")
 ResourceMgr = require("ResourceManager")
 
 local bump = require("lib.bump")
@@ -26,19 +27,19 @@ function love.load()
 
 	local oneway = function(world, col, x,y,w,h, goalX, goalY, filter)
   		local cols, len = world:project(col.item, x,y,w,h, goalX, goalY, filter)
-		return goalX, math.min(goalY,col.item.transform.y), cols, len
+		return goalX, math.min(goalY,col.item.transform.pos.y), cols, len
 	end
 	local slope = function(world, col, x,y,w,h, goalX, goalY, filter)
 
 		col.normal = {x = 0, y = 0}	--Até provado o contrario, não teve realmente uma colisão
   		local range = math.abs(col.other.collider.rightY-col.other.collider.leftY)
 
-  		local charBase = math.min(math.max(col.item.transform.x + col.item.collider.w/2,col.other.transform.x), col.other.transform.x + col.other.collider.w)
-  		local xNormal = (charBase - col.other.transform.x) / col.other.collider.w
+  		local charBase = math.min(math.max(col.item.transform.pos.x + col.item.collider.w/2,col.other.transform.pos.x), col.other.transform.pos.x + col.other.collider.w)
+  		local xNormal = (charBase - col.other.transform.pos.x) / col.other.collider.w
   		if (col.other.collider.rightY < col.other.collider.leftY) then
   			xNormal = 1 - xNormal
   		end
-  		local slopeY = (col.other.transform.y+col.other.collider.h) - ((xNormal * range) * col.other.collider.h) - math.min(col.other.collider.rightY, col.other.collider.leftY) * col.other.collider.h
+  		local slopeY = (col.other.transform.pos.y+col.other.collider.h) - ((xNormal * range) * col.other.collider.h) - math.min(col.other.collider.rightY, col.other.collider.leftY) * col.other.collider.h
   		slopeY = slopeY - col.item.collider.h
 		if (goalY>slopeY) then
 			col.normal = {x = 0, y = -1}	--Foi provado o contrario, teve colisão
@@ -55,22 +56,36 @@ function love.load()
 	boxTex = ResourceMgr.get("texture", "tile.png")
 	smallBoxTex = ResourceMgr.get("texture", "tile8.png")
 
-
-	boxGO = GameObject("box", {Renderer(boxTex), BoxCollider()})
-	smallBoxGO = GameObject("Player", {Renderer(), SpriteAnimator("idle"), BoxCollider(), CharacterMotor(), PlayerInput()})
+	player = GameObject("Player", {Renderer(), SpriteAnimator("idle"), BoxCollider(), CharacterMotor(), PlayerInput()}):newInstance({pos = vector(400,50)})
 
 	--Cria cena de teste
 	scene = Scene()
+
+	--[[pai = GameObject("pai",{Renderer("tile8", Color(255, 0, 0, 128))}):newInstance()
+	pai2 = GameObject("pai",{Renderer("tile8", Color(255, 0, 0, 128))}):newInstance()
+	pai.transform:setScale(2,2)
+	filho = GameObject("filho",{Renderer("tile8")}):newInstance()
+	filho.transform:setScale(0.5,0.25)
+	pai:addChild(filho)
+	scene:addGO(pai)
+	scene:addGO(pai2)
+	pai.transform:moveTo(vector(400,200))
+	filho.transform:moveTo(-20,50)]]
+
 	scene:loadMap("level1")	--Carrega um mapa da pasta maps
+	scene:addGO(player)
 
-	scene:addGO(smallBoxGO:newInstance({x = 400}))
 
-	pprint("Pressione Z para morrer", "morte")
-	
 end
 
 function love.update(dt)
 	scene:update(dt)
+	--pai2.transform:translate(30*dt,30*dt)
+	--filho.transform:translate(5*dt,5*dt)
+	--pai.transform:rotate(dt*0.5)
+	--filho.transform:rotate(dt*0.5)
+	--pai.transform:lookAt(pai2)
+	--pai.transform:translate(pai.transform:forward()*30*dt)
 end
 
 function love:draw()

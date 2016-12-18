@@ -12,13 +12,12 @@ function CharacterMotor:new()
 	--Propriedades ajustáveis
 	self.jumpHeight = 4		-- Altura do pulo
 	self.jumpTime = 0.44	-- Segundos que o pulo dura
-	self.speed = 5			-- Velocidade de movimento
+	self.movSpeed = 5		-- Velocidade de movimento
 
 
 	--Não mexer
 	self.gravity = 0
-	self.speedX = 0
-	self.speedY = 0
+	self.speed = vector(0,0)
 	self.isGrounded = false
 
 	return self
@@ -30,12 +29,10 @@ function CharacterMotor:init()
 end
 
 function CharacterMotor:update(dt)
-	pprint("speedY = "..self.speedY)
-
-	self.speedY = self.speedY + self.gravity*dt
-	local nX, nY, cols, n = physics:move(self.go, self.go.transform.x + self.speedX, self.go.transform.y + self.speedY, function(a, b) 
-		local charBase = a.transform.x+a.collider.w/2
-		if(b.collider.isSlope and a.transform.y < b.transform.y + b.collider.h) then
+	self.speed.y = self.speed.y + self.gravity*dt
+	local nX, nY, cols, n = physics:move(self.go, self.go.transform.pos.x + self.speed.x, self.go.transform.pos.y + self.speed.y, function(a, b) 
+		local charBase = a.transform.pos.x+a.collider.w/2
+		if(b.collider.isSlope and a.transform.pos.y < b.transform.pos.y + b.collider.h) then
 	 		return "slope" 
 	 	else
 	 		return "slide"
@@ -46,16 +43,16 @@ function CharacterMotor:update(dt)
 	if (n>0) then
 		for k,v in pairs(cols) do
 			if (v.normal.y<0) then 	--Se a colisão está em baixo, reseta a velocidade Y se positiva
-				self.speedY = math.min(0, self.speedY)
+				self.speed.y = math.min(0, self.speed.y)
 				self.isGrounded = true
 			end
 			if (v.normal.y>0) then 	--Se a colisão está em cima, reseta a velocidade Y se negativa
-				self.speedY = math.max(0, self.speedY)
+				self.speed.y = math.max(0, self.speed.y)
 			end
 		end
 	end
 
-	self.go.transform:translate(nX, nY)
+	self.go.transform:moveTo(nX, nY)
 end
 
 function CharacterMotor:move(dir)
@@ -79,21 +76,21 @@ function CharacterMotor:move(dir)
 		end
 	end
 
-	self.speedX = dir * self.speed
+	self.speed.x = dir * self.movSpeed
 end
 
 function CharacterMotor:jump()
 	if not self.isAlive then
 		return
 	end
-	self.speedY = - math.sqrt((2*self.gravity*self.jumpHeight))
+	self.speed.y = - math.sqrt((2*self.gravity*self.jumpHeight))
 	self.go.animator:setAnim("jump")
 end
 
 function CharacterMotor:die()
 	self.isAlive = false
 	self.go.animator:setAnim("die")
-	self.speedX = 0
-	self.speedY = 0
+	self.speed.x = 0
+	self.speed.y = 0
 	pprint("Parabéns", "morte")
 end

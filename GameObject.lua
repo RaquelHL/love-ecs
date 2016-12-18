@@ -16,6 +16,7 @@ local function new(name, components)
 	local go = {}
 	setmetatable(go, GameObject)
 
+	go.isGameObject = true
 	go.isInstance = false
 	go.nInstances = 0	--Por enquanto só pra dar nome pras instancias
 	go.name = name or "GameObject"
@@ -119,11 +120,11 @@ function GameObject:newInstance(args)
 	go.name = args.name or self.name..self.nInstances and self.nInstances > 1 or self.name
 
 	if go.transform then
-		go.transform.x = args.x or go.transform.x
-		go.transform.y = args.y or go.transform.y
+		go.transform.pos = args.pos or go.transform.pos
+		go.transform.localPos = args.localPos or go.transform.localPos
 		go.transform.o = args.o or go.transform.o
-		go.transform.sx = args.sx or go.transform.sx
-		go.transform.sy = args.sy or go.transform.sy
+		go.transform.scale = args.scale or go.transform.scale
+		go.transform.localScale = args.localScale or go.transform.localScale
 	end
 
 	go.active = true
