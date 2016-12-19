@@ -5,6 +5,7 @@ local function newDefaultLabel()
 		text = "Label",
 		x = 0,
 		y = 0,
+		h = 0,
 		w = 0,
 		maxW = 0,
 		color = Color(255,255,255,255),
@@ -21,15 +22,23 @@ local function newDefaultLabel()
 		drawSelf = function(self)
 			love.graphics.setColor(self.color:value())
 			love.graphics.setFont(self.font)
-			love.graphics.printf(self.text, self.x, self.y, self.w, self.textAlign)
+			love.graphics.printf(self.text, self.realX, self.realY + self.fontY, self.realW, self.textAlign)
+
+			love.graphics.setColor(255, 0, 0)
+			--love.graphics.rectangle("fill", self.realX, self.realY, self.realW, self.realH)
 		end,
 		refresh = function(self)
 			if self.maxW ~= 0 then
-				self.w = math.min(self.maxW, self.font:getWidth(self.text))
+				self.realW = math.min(self.maxW, self.font:getWidth(self.text))
 			else
-				self.w = self.font:getWidth(self.text)
+				if (type(self.w) ~= "string") then
+					self.realW = self.font:getWidth(self.text)
+				end
 			end
-			self.h = self.font:getHeight()
+			--self.realW = self.w
+			self.realH = math.max(self.font:getHeight(), self.h or 0)
+			self.fontY = (self.realH - self.font:getHeight()) / 2
+			
 		end,
 		active = true
 	}
@@ -46,6 +55,11 @@ return function(self, args)
 	for k,v in pairs(defaultLabel) do
 		lb[k] = args[k] or v
 	end
+
+	fr.realX = fr.x
+	fr.realY = fr.y
+	fr.realW = fr.w
+	fr.realH = fr.h
 
 	lb:refresh()	
 	

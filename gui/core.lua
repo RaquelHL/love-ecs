@@ -1,11 +1,12 @@
-   
+local BASE = (...):match('(.-)[^%.]+$')	--Aparentemente pega o caminho até o diretorio do arquivo atual. Não sei como.
+
+
 local gui = {}   
 gui.__index = gui
 
 
-local BASE = (...):match('(.-)[^%.]+$')	--Aparentemente pega o caminho até o diretorio do arquivo atual. Não sei como.
 
-debugLines = false
+debugLines = true
 
 widgetType = {
 	frame = 1,
@@ -22,15 +23,97 @@ lastClick = love.timer.getTime()
 clickCooldown = 0.1
 
 layoutFunctions = {
-	boxV = function(wd)
-
+	gridH = function(wd)
 		local totalWeight = 0
 		for i,child in ipairs(wd.children) do
 			if child.active then
 				totalWeight = totalWeight + child.weight
 			end
 		end
-		local baseHeight = wd.h / totalWeight
+		local baseWidth = wd.realW / totalWeight
+		local lastWidth = 0
+		for i,child in ipairs(wd.children) do
+			if child.active == true then
+				local boxWidth = baseWidth * child.weight
+				local halign = ""
+				local valign = ""
+
+				if (child.halign == "parent") then
+					halign = wd.childHalign
+				else
+					halign = child.halign
+				end
+				if (child.valign == "parent") then
+					valign = wd.childValign
+				else
+					valign = child.valign
+				end
+				
+				child.realH = math.min(child.h, wd.realH-wd.padding*2)
+				child.realW = math.min(child.w, boxWidth-wd.padding*2)
+				if(child.redraw)then
+					child.redraw()
+				end
+
+				
+
+				if (halign == "left") then
+					child.realX = lastWidth + wd.padding
+				elseif (halign == "center") then
+					child.realX = lastWidth + boxWidth/2 - child.realW/2
+				elseif (halign == "right") then
+					child.realX = lastWidth + boxWidth - wd.padding - child.realW
+				end
+
+				if (valign == "top") then
+					child.realY = wd.padding
+				elseif (valign == "center") then
+					child.realY = wd.realH/2 - child.realH/2
+				elseif (valign == "bottom") then
+					child.realY = wd.realH - wd.padding - child.realH
+				end
+				
+				child.realX = child.realX + wd.realX
+				child.realY = child.realY + wd.realY
+
+				if (child.layout) then
+					if (child.layout ~= "absolute") then
+						layoutFunctions[child.layout](child)
+					end
+				end
+
+				lastWidth = lastWidth + boxWidth
+			end
+			child:refresh()
+		end
+
+		if debugLines then
+			wd.drawLines = function()
+				love.graphics.setColor(255, 0, 255)
+				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
+				love.graphics.setColor(0,255,0)
+				local totalWeight = 0
+				for i,child in ipairs(wd.children) do
+					totalWeight = totalWeight + child.weight
+				end
+				local baseWidth = wd.realW / totalWeight
+				local lastWidth = 0
+				for i,child in ipairs(wd.children) do
+					local boxWidth = baseWidth * child.weight
+					love.graphics.rectangle("line", wd.realX+wd.padding+lastWidth, wd.realY+wd.padding, boxWidth - wd.padding*2, wd.realH - wd.padding*2)
+					lastWidth = lastWidth + boxWidth
+				end
+			end
+		end
+	end,
+	gridV = function(wd)
+		local totalWeight = 0
+		for i,child in ipairs(wd.children) do
+			if child.active then
+				totalWeight = totalWeight + child.weight
+			end
+		end
+		local baseHeight = wd.realH / totalWeight
 		local lastHeight = 0
 		for i,child in ipairs(wd.children) do
 			if child.active == true then
@@ -49,30 +132,30 @@ layoutFunctions = {
 					valign = child.valign
 				end
 				
-				child.h = math.min(child.h, boxHeight-wd.padding*2)
-				child.w = math.min(child.w, wd.w-wd.padding*2)
+				child.realH = math.min(child.h, boxHeight-wd.padding*2)
+				child.realW = math.min(child.w, wd.realW-wd.padding*2)
 				if(child.redraw)then
 					child.redraw()
 				end
 
 				if (halign == "left") then
-					child.x = wd.padding
+					child.realX = wd.padding
 				elseif (halign == "center") then
-					child.x = wd.w/2 - child.w/2
+					child.realX = wd.realW/2 - child.realW/2
 				elseif (halign == "right") then
-					child.x = wd.w - wd.padding - child.w
+					child.realX = wd.realW - wd.padding - child.realW
 				end
 
 				if (valign == "top") then
-					child.y = lastHeight + wd.padding
+					child.realY = lastHeight + wd.padding
 				elseif (valign == "center") then
-					child.y = lastHeight + boxHeight/2 - child.h/2
+					child.realY = lastHeight + boxHeight/2 - child.realH/2
 				elseif (valign == "bottom") then
-					child.y = lastHeight + boxHeight - wd.padding - child.h
+					child.realY = lastHeight + boxHeight - wd.padding - child.realH
 				end
 				
-				child.x = child.x + wd.x
-				child.y = child.y + wd.y
+				child.realX = child.realX + wd.realX
+				child.realY = child.realY + wd.realY
 
 				if (child.layout) then
 					if (child.layout ~= "absolute") then
@@ -82,30 +165,148 @@ layoutFunctions = {
 
 				lastHeight = lastHeight + boxHeight
 			end
+			child:refresh()
 		end
 
 		if debugLines then
 			wd.drawLines = function()
 				love.graphics.setColor(255, 0, 255)
-				love.graphics.rectangle("line", wd.x, wd.y, wd.w, wd.h)
+				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
 				love.graphics.setColor(0,255,0)
 				local totalWeight = 0
 				for i,child in ipairs(wd.children) do
 					totalWeight = totalWeight + child.weight
 				end
-				local baseHeight = wd.h / totalWeight
+				local baseHeight = wd.realH / totalWeight
 				local lastHeight = 0
 				for i,child in ipairs(wd.children) do
 					local boxHeight = baseHeight * child.weight
-					love.graphics.rectangle("line", wd.x+wd.padding, wd.y+wd.padding+lastHeight, wd.w - wd.padding*2, boxHeight - wd.padding*2)
+					love.graphics.rectangle("line", wd.realX+wd.padding, wd.realY+wd.padding+lastHeight, wd.realW - wd.padding*2, boxHeight - wd.padding*2)
 					lastHeight = lastHeight + boxHeight
 				end
 			end
 		end
-
 	end,
 	boxH = function(wd)
-		-- TODO
+		local lastWidth = 0
+		for i,child in ipairs(wd.children) do
+			if child.active == true then
+				local valign = ""
+
+				if (child.valign == "parent") then
+					valign = wd.childValign
+				else
+					valign = child.valign
+				end
+				
+				wd.realW = wd.w
+
+				child.realH = math.min(child.h, wd.realH-wd.padding*2)
+				child.realW = math.min(child.w, wd.realW-wd.padding*2)
+				if(child.redraw)then
+					child.redraw()
+				end				
+
+				child.realX = lastWidth + wd.padding
+
+				if (valign == "top") then
+					child.realY = wd.padding
+				elseif (valign == "center") then
+					child.realY = wd.realH/2 - child.realH/2
+				elseif (valign == "bottom") then
+					child.realY = wd.realH - wd.padding - child.realH
+				end
+				
+				child.realX = child.realX + wd.realX
+				child.realY = child.realY + wd.realY
+
+				if (child.layout) then
+					if (child.layout ~= "absolute") then
+						layoutFunctions[child.layout](child)
+					end
+				end
+
+				lastWidth = lastWidth + child.realW + wd.padding
+			end
+			child:refresh()
+		end
+
+		if debugLines then
+			wd.drawLines = function()
+				love.graphics.setColor(255, 0, 255)
+				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
+				love.graphics.setColor(0,255,0)
+				local lastWidth = 0
+				for i,child in ipairs(wd.children) do
+					love.graphics.rectangle("line", wd.realX+wd.padding+lastWidth, wd.realY+wd.padding, child.realW, wd.realH - wd.padding*2)
+					lastWidth = lastWidth + child.realW + wd.padding
+				end
+			end
+		end
+	end,
+	boxV = function(wd)
+		local lastHeight = 0
+		for i,child in ipairs(wd.children) do
+			if child.active == true then
+				local halign = ""
+
+				if (child.halign == "parent") then
+					halign = wd.childHalign
+				else
+					halign = child.halign
+				end
+
+				if (type(child.w) == "string") then
+					child.realW = wd.realW
+				else
+					child.realW = math.min(child.w, wd.realW-wd.padding*2)
+				end
+				if (type(child.h) == "string") then
+					child.realH = wd.h
+				else
+					child.realH = math.min(child.h, wd.realH-wd.padding*2)
+				end
+
+				if(child.redraw)then
+					child.redraw()
+				end
+
+				if (halign == "left") then
+					child.realX = wd.padding
+				elseif (halign == "center") then
+					child.realX = wd.realW/2 - child.realW/2
+				elseif (halign == "right") then
+					child.realX = wd.realW - wd.padding - child.realW
+				end
+
+				child.realY = lastHeight + wd.padding
+				
+				child.realX = child.realX + wd.realX
+				child.realY = child.realY + wd.realY
+
+				if (child.layout) then
+					if (child.layout ~= "absolute") then
+						layoutFunctions[child.layout](child)
+					end
+				end
+
+				lastHeight = lastHeight + child.realH + wd.padding
+			end
+			child:refresh()
+		end
+
+		if debugLines then
+			wd.drawLines = function()
+				love.graphics.setColor(255, 0, 255)
+				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
+				love.graphics.setColor(0,255,0)
+				local lastHeight = 0
+				for i,child in ipairs(wd.children) do
+					love.graphics.rectangle("line", wd.realX+wd.padding, wd.realY+wd.padding+lastHeight, wd.realW - wd.padding*2, child.realH)
+					lastHeight = lastHeight + child.realH + wd.padding
+				end
+			end
+		end
 	end
 }
 
@@ -119,6 +320,12 @@ local function init()
 
 	gui.isGUI = true
 
+	font = font or love.graphics.getFont()
+    local texDefaultPanel = love.graphics.newImage(BASE.."/defaultPanel.png")
+    texDefaultPanel:setFilter("nearest","nearest")
+    gui:newPanelType("button", texDefaultPanel, 1, 1)
+    gui:newPanelType("textBox", texDefaultPanel, 1, 1)
+	love.keyboard.setKeyRepeat(true)
 	return gui
 end
 
@@ -140,7 +347,7 @@ function gui:newPanelType(name, tex, borderS, centerS)
 end
 
 function gui:newPanel(pType, w, h)
-	if (pType == "none") then
+	if (pType == "none" or pType == "box") then
 		return nil
 	end
 	
@@ -167,14 +374,15 @@ function gui:draw(wd)
 	if not wd.active then
 		return
 	end
-	if wd.drawLines then
-		wd.drawLines()
-	end
 	--Atualiza posição do mouse
 	mx, my = love.mouse.getPosition()
 		
 	--Desenha widget
 	wd:drawSelf()
+
+	if wd.drawLines then
+		wd.drawLines()
+	end
 	
 end
 
@@ -182,9 +390,8 @@ function gui:mousepressed(wd, x, y, b)	--Reescrever
 	if (not wd.active) then
 		return
 	end
-	
-	if wd.x and wd.y and wd.w and wd.h then 	--Basicamente, se é um widget clicavel(label nao é)
-		if ((x > wd.x) and (x < wd.x + wd.w) and (y > wd.y) and (y < wd.y + wd.h)) then 	--Verifica se clicou dentro do widget
+	if wd.realX and wd.realY and wd.realW and wd.realH then 	--Basicamente, se é um widget clicavel(label nao é)
+		if ((x > wd.realX) and (x < wd.realX + wd.realW) and (y > wd.realY) and (y < wd.realY + wd.realH)) then 	--Verifica se clicou dentro do widget
 			if (wd.wType == widgetType.button) then 	--Chama o callback se for botao
 				if(love.timer.getTime()-lastClick>clickCooldown)then
 					wd.callback(b)
@@ -193,6 +400,7 @@ function gui:mousepressed(wd, x, y, b)	--Reescrever
 				
 			elseif (wd.wType == widgetType.textBox) then 	--Transfere o foco se for textBox
 				if textBoxFocus then
+					textBoxFocus.caret = false
 					textBoxFocus.hasFocus = false
 				end
 				textBoxFocus = wd
@@ -243,5 +451,6 @@ function gui:keypressed(k)
 	end
 end
 
-return setmetatable({new = init},
-	{__call = function(_, ...) return init(...) end})
+return init()
+--[[return setmetatable({new = init},
+	{__call = function(_, ...) return init(...) end})]]

@@ -7,6 +7,10 @@ local function newDefaultFrame()
 		y = 0,
 		w = love.graphics.getWidth(),
 		h = love.graphics.getHeight(),
+		realX = 0,
+		realY = 0,
+		realW = love.graphics.getWidth(),
+		realH = love.graphics.getHeight(),
 
 		color = Color(255),
 		layout = "absolute",
@@ -26,8 +30,12 @@ local function newDefaultFrame()
 
 		drawSelf = function(self)
 			if (self.panelType ~= "none") then
-				love.graphics.setColor(self.color:value())
-				love.graphics.draw(self.batch, self.x, self.y, 0, 1, 1)
+					love.graphics.setColor(self.color:value())
+				if (self.panelType == "box") then
+					love.graphics.rectangle("fill", self.realX, self.realY, self.realW, self.realH)
+				else
+					love.graphics.draw(self.batch, self.realX, self.realY, 0, 1, 1)
+				end
 			end
 			
 			for i,child in ipairs(self.children) do
@@ -41,7 +49,7 @@ local function newDefaultFrame()
 		end,
 
 		refresh = function(self)
-			self.batch = gui:newPanel(self.panelType, self.w, self.h)
+			self.batch = gui:newPanel(self.panelType, self.realW, self.realH)
 			if (self.layout ~= "absolute") then
 				layoutFunctions[self.layout](self)
 			end
@@ -62,6 +70,11 @@ return function(self, args)
 	for k,v in pairs(defaultFrame) do
 		fr[k] = args[k] or v
 	end
+
+	fr.realX = fr.x
+	fr.realY = fr.y
+	fr.realW = fr.w
+	fr.realH = fr.h
 
 	fr:refresh()
 
