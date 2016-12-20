@@ -49,8 +49,16 @@ layoutFunctions = {
 					valign = child.valign
 				end
 				
-				child.realH = math.min(child.h, wd.realH-wd.padding*2)
-				child.realW = math.min(child.w, boxWidth-wd.padding*2)
+				if (type(child.h) == "number") then
+					child.realH = math.min(child.h, wd.realH-wd.padding*2)
+				else
+					child.realH = wd.realH-wd.padding*2
+				end
+				if(type(child.w) == "number") then
+					child.realW = math.min(child.w, boxWidth-wd.padding*2)
+				else
+					child.realW = boxWidth - wd.padding*2
+				end
 				if(child.redraw)then
 					child.redraw()
 				end
@@ -73,8 +81,8 @@ layoutFunctions = {
 					child.realY = wd.realH - wd.padding - child.realH
 				end
 				
-				child.realX = child.realX + wd.realX
-				child.realY = child.realY + wd.realY
+				child.realX = math.floor(child.realX + wd.realX)
+				child.realY = math.floor(child.realY + wd.realY)
 
 				if (child.layout) then
 					if (child.layout ~= "absolute") then
@@ -154,8 +162,8 @@ layoutFunctions = {
 					child.realY = lastHeight + boxHeight - wd.padding - child.realH
 				end
 				
-				child.realX = child.realX + wd.realX
-				child.realY = child.realY + wd.realY
+				child.realX = math.floor(child.realX + wd.realX)
+				child.realY = math.floor(child.realY + wd.realY)
 
 				if (child.layout) then
 					if (child.layout ~= "absolute") then
@@ -217,8 +225,8 @@ layoutFunctions = {
 					child.realY = wd.realH - wd.padding - child.realH
 				end
 				
-				child.realX = child.realX + wd.realX
-				child.realY = child.realY + wd.realY
+				child.realX = math.floor(child.realX + wd.realX)
+				child.realY = math.floor(child.realY + wd.realY)
 
 				if (child.layout) then
 					if (child.layout ~= "absolute") then
@@ -256,13 +264,13 @@ layoutFunctions = {
 					halign = child.halign
 				end
 
-				if (type(child.w) == "string") then
-					child.realW = wd.realW
+				if (child.w == "parent") then
+					child.realW = wd.realW - wd.padding*2
 				else
 					child.realW = math.min(child.w, wd.realW-wd.padding*2)
 				end
-				if (type(child.h) == "string") then
-					child.realH = wd.h
+				if (child.h == "parent") then
+					child.realH = wd.h - wd.padding*2
 				else
 					child.realH = math.min(child.h, wd.realH-wd.padding*2)
 				end
@@ -281,8 +289,8 @@ layoutFunctions = {
 
 				child.realY = lastHeight + wd.padding
 				
-				child.realX = child.realX + wd.realX
-				child.realY = child.realY + wd.realY
+				child.realX = math.floor(child.realX + wd.realX)
+				child.realY = math.floor(child.realY + wd.realY)
 
 				if (child.layout) then
 					if (child.layout ~= "absolute") then
@@ -313,6 +321,8 @@ layoutFunctions = {
 
 local function init()
 
+	require(BASE.."widget")
+
 	gui.Frame = require(BASE.."frame")
 	gui.Label = require(BASE.."label")
 	gui.Button = require(BASE.."button")
@@ -321,9 +331,10 @@ local function init()
 	gui.isGUI = true
 
 	font = font or love.graphics.getFont()
+	fontt = font or love.graphics.getFont()
     local texDefaultPanel = love.graphics.newImage(BASE.."/defaultPanel.png")
     texDefaultPanel:setFilter("nearest","nearest")
-    gui:newPanelType("button", texDefaultPanel, 1, 1)
+    --gui:newPanelType("button", texDefaultPanel, 1, 1)
     gui:newPanelType("textBox", texDefaultPanel, 1, 1)
 	love.keyboard.setKeyRepeat(true)
 	return gui
@@ -398,7 +409,7 @@ function gui:mousepressed(wd, x, y, b)	--Reescrever
 					lastClick = love.timer.getTime()
 				end
 				
-			elseif (wd.wType == widgetType.textBox) then 	--Transfere o foco se for textBox
+			elseif (wd.wType == widgetType.textBox) then 	--Transfere o foco se for textBoxFocus 
 				if textBoxFocus then
 					textBoxFocus.caret = false
 					textBoxFocus.hasFocus = false
@@ -428,7 +439,7 @@ end
 
 function gui:keypressed(k)
 	if textBoxFocus then
-		if (k == "backspace") then
+		if (k == "backspace" and textBoxFocus.caretPos > 0) then
 	        textBoxFocus.text = string.sub(textBoxFocus.text, 1, textBoxFocus.caretPos-1)..string.sub(textBoxFocus.text, textBoxFocus.caretPos+1)
 	        textBoxFocus.caretPos = textBoxFocus.caretPos - 1
 		end

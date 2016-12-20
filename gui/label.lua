@@ -1,16 +1,12 @@
-local gui = nil
-
 local function newDefaultLabel()
 	return {
 		text = "Label",
-		x = 0,
-		y = 0,
-		h = 0,
-		w = 0,
 		maxW = 0,
 		color = Color(255,255,255,255),
 		textAlign = "center",
 		font = font,
+		h = font:getHeight(),
+		w = "parent",
 		halign = "parent",
 		valign = "parent",
 		weight = 1,
@@ -38,30 +34,8 @@ local function newDefaultLabel()
 			--self.realW = self.w
 			self.realH = math.max(self.font:getHeight(), self.h or 0)
 			self.fontY = (self.realH - self.font:getHeight()) / 2
-			
-		end,
-		active = true
+		end
 	}
 end
 
-
-return function(self, args)
-	assert(self.isGUI, "Use a colon to call this function")
-	gui = self
-	args = args or {}
-	defaultLabel = newDefaultLabel()
-	local lb = {}
-
-	for k,v in pairs(defaultLabel) do
-		lb[k] = args[k] or v
-	end
-
-	fr.realX = fr.x
-	fr.realY = fr.y
-	fr.realW = fr.w
-	fr.realH = fr.h
-
-	lb:refresh()	
-	
-	return lb
-end
+return Widget(newDefaultLabel)

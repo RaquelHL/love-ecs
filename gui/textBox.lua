@@ -1,24 +1,16 @@
-local gui = nil
-
 local function newDefaultTextBox()
 	return {
 		--Basico
 		text = "",
 		panelType = "textBox",
-		x = 0,
-		y = 0,
 		w = 150,
 		h = 30,
-		realX = 0,
-		realY = 0,
-		realW = 150,
-		realH = 25,
 		callback = function() end,
 		hasFocus = false,
 
 		--Cores
 		color = Color(220),
-		focusColor = Color(220),
+		focusColor = Color(240),
 		textColor = Color(0),
 		
 		--Texto
@@ -59,29 +51,12 @@ local function newDefaultTextBox()
 		end,
 
 		refresh = function(self)
-			self.batch = gui:newPanel(self.panelType, self.realW, self.realH)
+			self.batch = self.gui:newPanel(self.panelType, self.realW, self.realH)
 			local border = panelTypes[self.panelType] and panelTypes[self.panelType].borderSize or 0
 			self.fontY = (self.realH - border*2-self.font:getHeight()) / 2
 			self.fontX = 5
-		end,
-
-		active = true
+		end
 	}
 end
 
-return function(self, args)
-	assert(self.isGUI, "Use a colon to call this function")
-	gui = self
-	args = args or {}
-	defaultTextBox = newDefaultTextBox()
-	local tb = {}
-	
-	for k,v in pairs(defaultTextBox) do
-		tb[k] = args[k] or v
-	end
-
-	tb:refresh()
-
-	return tb
-
-end
+return Widget(newDefaultTextBox)

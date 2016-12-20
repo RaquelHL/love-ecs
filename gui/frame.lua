@@ -1,16 +1,8 @@
-gui = nil
-
 local function newDefaultFrame()
 	return {
 		panelType = "none",
-		x = 0,
-		y = 0,
-		w = love.graphics.getWidth(),
-		h = love.graphics.getHeight(),
-		realX = 0,
-		realY = 0,
-		realW = love.graphics.getWidth(),
-		realH = love.graphics.getHeight(),
+		w = "parent",
+		h = "parent",
 
 		color = Color(255),
 		layout = "absolute",
@@ -39,44 +31,37 @@ local function newDefaultFrame()
 			end
 			
 			for i,child in ipairs(self.children) do
-				gui:draw(child)
+				self.gui:draw(child)
 			end
 		end,
 
 		addChild = function(self, wd)
+			wd.parent = self
 			self.children[#self.children+1] = wd
 			self:refresh()
 		end,
 
 		refresh = function(self)
-			self.batch = gui:newPanel(self.panelType, self.realW, self.realH)
+			if (self.h == "parent") then
+				if (self.parent) then
+					self.realH = self.parent.realH
+				else
+					self.realH = love.graphics.getHeight()
+				end
+			end
+			if (self.w == "parent") then
+				if (self.parent) then
+					self.realW = self.parent.realW
+				else
+					self.realW = love.graphics.getWidth()
+				end
+			end
+			self.batch = self.gui:newPanel(self.panelType, self.realW, self.realH)
 			if (self.layout ~= "absolute") then
 				layoutFunctions[self.layout](self)
 			end
-		end,
-
-		active = true
+		end
 	}
 end
 
-return function(self, args)
-	assert(self.isGUI, "Use a colon to call this function")
-	gui = self
-	args = args or {}
-	defaultFrame = newDefaultFrame()
-
-	local fr = {}
-
-	for k,v in pairs(defaultFrame) do
-		fr[k] = args[k] or v
-	end
-
-	fr.realX = fr.x
-	fr.realY = fr.y
-	fr.realW = fr.w
-	fr.realH = fr.h
-
-	fr:refresh()
-
-	return fr
-end
+return Widget(newDefaultFrame)
