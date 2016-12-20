@@ -6,7 +6,7 @@ gui.__index = gui
 
 
 
-debugLines = true
+debugLines = false
 
 widgetType = {
 	frame = 1,
@@ -17,22 +17,24 @@ widgetType = {
 
 panelTypes = {}
 
-textBoxFocus = nil
+local textBoxFocus = nil
 
-lastClick = love.timer.getTime()
-clickCooldown = 0.1
+local lastClick = love.timer.getTime()
+local clickCooldown = 0.1
 
 layoutFunctions = {
 	gridH = function(wd)
 		local totalWeight = 0
-		for i,child in ipairs(wd.children) do
+		for i,chID in ipairs(wd.children) do
+			local child = Widget.get(chID)
 			if child.active then
 				totalWeight = totalWeight + child.weight
 			end
 		end
 		local baseWidth = wd.realW / totalWeight
 		local lastWidth = 0
-		for i,child in ipairs(wd.children) do
+		for i,chID in ipairs(wd.children) do
+			local child = Widget.get(chID)
 			if child.active == true then
 				local boxWidth = baseWidth * child.weight
 				local halign = ""
@@ -57,6 +59,7 @@ layoutFunctions = {
 				if(type(child.w) == "number") then
 					child.realW = math.min(child.w, boxWidth-wd.padding*2)
 				else
+					print(wd.id.." new w = "..(boxWidth - wd.padding*2))
 					child.realW = boxWidth - wd.padding*2
 				end
 				if(child.redraw)then
@@ -101,12 +104,14 @@ layoutFunctions = {
 				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
 				love.graphics.setColor(0,255,0)
 				local totalWeight = 0
-				for i,child in ipairs(wd.children) do
+				for i,chID in ipairs(wd.children) do
+					local child = Widget.get(chID)
 					totalWeight = totalWeight + child.weight
 				end
 				local baseWidth = wd.realW / totalWeight
 				local lastWidth = 0
-				for i,child in ipairs(wd.children) do
+				for i,chID in ipairs(wd.children) do
+					local child = Widget.get(chID)
 					local boxWidth = baseWidth * child.weight
 					love.graphics.rectangle("line", wd.realX+wd.padding+lastWidth, wd.realY+wd.padding, boxWidth - wd.padding*2, wd.realH - wd.padding*2)
 					lastWidth = lastWidth + boxWidth
@@ -116,14 +121,16 @@ layoutFunctions = {
 	end,
 	gridV = function(wd)
 		local totalWeight = 0
-		for i,child in ipairs(wd.children) do
+		for i,chID in ipairs(wd.children) do
+			local child = Widget.get(chID)
 			if child.active then
 				totalWeight = totalWeight + child.weight
 			end
 		end
 		local baseHeight = wd.realH / totalWeight
 		local lastHeight = 0
-		for i,child in ipairs(wd.children) do
+		for i,chID in ipairs(wd.children) do
+			local child = Widget.get(chID)
 			if child.active == true then
 				local boxHeight = baseHeight * child.weight
 				local halign = ""
@@ -182,12 +189,14 @@ layoutFunctions = {
 				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
 				love.graphics.setColor(0,255,0)
 				local totalWeight = 0
-				for i,child in ipairs(wd.children) do
+				for i,chID in ipairs(wd.children) do
+					local child = Widget.get(chID)
 					totalWeight = totalWeight + child.weight
 				end
 				local baseHeight = wd.realH / totalWeight
 				local lastHeight = 0
-				for i,child in ipairs(wd.children) do
+				for i,chID in ipairs(wd.children) do
+					local child = Widget.get(chID)
 					local boxHeight = baseHeight * child.weight
 					love.graphics.rectangle("line", wd.realX+wd.padding, wd.realY+wd.padding+lastHeight, wd.realW - wd.padding*2, boxHeight - wd.padding*2)
 					lastHeight = lastHeight + boxHeight
@@ -197,7 +206,8 @@ layoutFunctions = {
 	end,
 	boxH = function(wd)
 		local lastWidth = 0
-		for i,child in ipairs(wd.children) do
+		for i,chID in ipairs(wd.children) do
+			local child = Widget.get(chID)
 			if child.active == true then
 				local valign = ""
 
@@ -245,7 +255,8 @@ layoutFunctions = {
 				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
 				love.graphics.setColor(0,255,0)
 				local lastWidth = 0
-				for i,child in ipairs(wd.children) do
+				for i,chID in ipairs(wd.children) do
+					local child = Widget.get(chID)
 					love.graphics.rectangle("line", wd.realX+wd.padding+lastWidth, wd.realY+wd.padding, child.realW, wd.realH - wd.padding*2)
 					lastWidth = lastWidth + child.realW + wd.padding
 				end
@@ -254,7 +265,8 @@ layoutFunctions = {
 	end,
 	boxV = function(wd)
 		local lastHeight = 0
-		for i,child in ipairs(wd.children) do
+		for i,chID in ipairs(wd.children) do
+			local child = Widget.get(chID)
 			if child.active == true then
 				local halign = ""
 
@@ -309,7 +321,8 @@ layoutFunctions = {
 				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
 				love.graphics.setColor(0,255,0)
 				local lastHeight = 0
-				for i,child in ipairs(wd.children) do
+				for i,chID in ipairs(wd.children) do
+					local child = Widget.get(chID)
 					love.graphics.rectangle("line", wd.realX+wd.padding, wd.realY+wd.padding+lastHeight, wd.realW - wd.padding*2, child.realH)
 					lastHeight = lastHeight + child.realH + wd.padding
 				end
@@ -384,17 +397,25 @@ end
 function gui:draw(wd)
 	if not wd.active then
 		return
-	end
-	--Atualiza posição do mouse
-	mx, my = love.mouse.getPosition()
-		
+	end	
 	--Desenha widget
 	wd:drawSelf()
 
 	if wd.drawLines then
 		wd.drawLines()
+	end	
+end
+
+function gui:update(wd)
+	if not wd.active then
+		return
 	end
-	
+	--Atualiza posição do mouse
+	mx, my = love.mouse.getPosition()
+		
+	if (wd.update) then
+		wd:update()
+	end
 end
 
 function gui:mousepressed(wd, x, y, b)	--Reescrever
@@ -418,7 +439,8 @@ function gui:mousepressed(wd, x, y, b)	--Reescrever
 				textBoxFocus.hasFocus = true
 			end
 			if (wd.children) then 
-				for i,child in ipairs(wd.children) do
+				for i,chID in ipairs(wd.children) do
+					local child = Widget.get(chID)
 					self:mousepressed(child, x, y, b)
 				end
 			end

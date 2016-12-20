@@ -30,35 +30,49 @@ local function newDefaultFrame()
 				end
 			end
 			
-			for i,child in ipairs(self.children) do
-				self.gui:draw(child)
+			for i,chID in ipairs(self.children) do
+				self.gui:draw(Widget.get(chID))
 			end
 		end,
 
 		addChild = function(self, wd)
-			wd.parent = self
-			self.children[#self.children+1] = wd
+			wd.parent = self.id
+			self.children[#self.children+1] = wd.id
 			self:refresh()
 		end,
 
 		refresh = function(self)
-			if (self.h == "parent") then
-				if (self.parent) then
-					self.realH = self.parent.realH
-				else
-					self.realH = love.graphics.getHeight()
+			if (self.parent) then
+				local parent = Widget.get(self.parent)
+				if (parent.layout == "absolute") then
+					if (self.h == "parent") then
+						self.realH = parent.realH
+					end
+					if (self.w == "parent") then
+						self.realW = parent.realW
+					end
 				end
-			end
-			if (self.w == "parent") then
-				if (self.parent) then
-					self.realW = self.parent.realW
-				else
+			else
+				if (self.w == "parent") then
 					self.realW = love.graphics.getWidth()
 				end
-			end
+				if (self.h == "parent") then
+					self.realH = love.graphics.getHeight()
+				end
+			end				
+				
 			self.batch = self.gui:newPanel(self.panelType, self.realW, self.realH)
 			if (self.layout ~= "absolute") then
 				layoutFunctions[self.layout](self)
+			end
+		end,
+
+		update = function(self, dt)
+			for k,chID in pairs(self.children) do
+				local child = Widget.get(chID)
+				if (child.update) then
+					child:update(dt)
+				end
 			end
 		end
 	}

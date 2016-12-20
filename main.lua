@@ -53,8 +53,7 @@ function print(...)
 end
 
 function initInspector(go)
-	fr = GUI:Frame({color = Color(150,150,150,150), layout = "boxV", w = 250, h=400, panelType = "textBox", padding = 0})
-	
+	fr = GUI:Frame({color = Color(150,150,150,150), layout = "boxV", w = 250, h=400, panelType = "textBox", padding = 5})
 	fr:addChild(GUI:Label({text = go.name, h = 30}))
 
 	for k,v in pairs(go.components) do
@@ -88,7 +87,7 @@ function love.draw()
 end
 
 function love.update(dt)
-	print(ren.texture)
+	GUI:update(fr)
 end
 
 function love.mousepressed(x,y,b)

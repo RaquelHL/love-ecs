@@ -5,6 +5,9 @@ Widget = {}
 local meta = {}
 meta.__index = meta
 
+local nextID = 1
+local widgetList = {}
+
 local function new(default)
 	local wd = {}
 	setmetatable(wd, meta)
@@ -15,6 +18,7 @@ local function new(default)
 		assert(gui.isGUI, "Use a colon to call this function")
 		local nWd = {}
 		wd.gui = gui
+		
 		args = args or {}
 		local defaultWd = default()
 		for k,v in pairs(self) do
@@ -38,11 +42,19 @@ local function new(default)
 
 		nWd:refresh()	
 		
+		nWd.id = nextID
+		widgetList[nWd.id] = nWd
+		nextID = nextID + 1
+
 		return nWd
 	end
 
 	setmetatable(wd, {__call = function(_, ...) return wd:newWidget(...) end})
 	return wd
+end
+
+function Widget.get(id)
+	return widgetList[id]
 end
 
 --Faz com que seja possível chamar a função new assim: Component(); Ao inves de assim: Component.new()
