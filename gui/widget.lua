@@ -33,6 +33,24 @@ local function new(default)
 		nWd.w = nWd.w or args.w or 0
 		nWd.h = nWd.h or args.h or 0
 
+		if (nWd.x < 0) then
+			nWd.x = love.graphics.getWidth() + nWd.x
+		end
+		if (nWd.y < 0) then
+			nWd.y = love.graphics.getHeight() + nWd.y
+		end
+
+		if nWd.w == "parent" then
+			nWd.w = 9999
+		end
+		if nWd.h == "parent" then
+			nWd.h = 9999
+		end
+		if nWd.h == "content" then
+			nWd.h = -1
+		end
+
+
 		nWd.realX = nWd.x
 		nWd.realY = nWd.y
 		nWd.realW = nWd.w

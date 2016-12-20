@@ -1,12 +1,10 @@
 local BASE = (...):match('(.-)[^%.]+$')	--Aparentemente pega o caminho até o diretorio do arquivo atual. Não sei como.
 
-
 local gui = {}   
 gui.__index = gui
 
 
-
-debugLines = false
+local debugLines = false
 
 widgetType = {
 	frame = 1,
@@ -17,7 +15,7 @@ widgetType = {
 
 panelTypes = {}
 
-local textBoxFocus = nil
+gui.focus = -1
 
 local lastClick = love.timer.getTime()
 local clickCooldown = 0.1
@@ -33,6 +31,7 @@ layoutFunctions = {
 		end
 		local baseWidth = wd.realW / totalWeight
 		local lastWidth = 0
+		local maxHeight = 0
 		for i,chID in ipairs(wd.children) do
 			local child = Widget.get(chID)
 			if child.active == true then
@@ -51,22 +50,13 @@ layoutFunctions = {
 					valign = child.valign
 				end
 				
-				if (type(child.h) == "number") then
-					child.realH = math.min(child.h, wd.realH-wd.padding*2)
-				else
-					child.realH = wd.realH-wd.padding*2
-				end
-				if(type(child.w) == "number") then
-					child.realW = math.min(child.w, boxWidth-wd.padding*2)
-				else
-					print(wd.id.." new w = "..(boxWidth - wd.padding*2))
-					child.realW = boxWidth - wd.padding*2
-				end
+				child.realW = math.min(child.w, boxWidth-wd.padding*2)
+				
+				maxHeight = math.max(maxHeight, child.realH)
+
 				if(child.redraw)then
 					child.redraw()
 				end
-
-				
 
 				if (halign == "left") then
 					child.realX = lastWidth + wd.padding
@@ -97,6 +87,8 @@ layoutFunctions = {
 			end
 			child:refresh()
 		end
+		
+		wd.realH = math.min(wd.h, maxHeight)
 
 		if debugLines then
 			wd.drawLines = function()
@@ -206,6 +198,7 @@ layoutFunctions = {
 	end,
 	boxH = function(wd)
 		local lastWidth = 0
+		local tallestChild = 0
 		for i,chID in ipairs(wd.children) do
 			local child = Widget.get(chID)
 			if child.active == true then
@@ -216,16 +209,6 @@ layoutFunctions = {
 				else
 					valign = child.valign
 				end
-				
-				wd.realW = wd.w
-
-				child.realH = math.min(child.h, wd.realH-wd.padding*2)
-				child.realW = math.min(child.w, wd.realW-wd.padding*2)
-				if(child.redraw)then
-					child.redraw()
-				end				
-
-				child.realX = lastWidth + wd.padding
 
 				if (valign == "top") then
 					child.realY = wd.padding
@@ -234,6 +217,16 @@ layoutFunctions = {
 				elseif (valign == "bottom") then
 					child.realY = wd.realH - wd.padding - child.realH
 				end
+
+				child.realH = math.min(child.h, wd.realH-wd.padding*2)			
+				child.realW = child.w
+				tallestChild = math.max(tallestChild, child.realH)
+
+				if(child.redraw)then
+					child.redraw()
+				end
+
+				child.realX = lastWidth + wd.padding
 				
 				child.realX = math.floor(child.realX + wd.realX)
 				child.realY = math.floor(child.realY + wd.realY)
@@ -248,6 +241,16 @@ layoutFunctions = {
 			end
 			child:refresh()
 		end
+		local maxW = wd.w
+		if(wd.parent) then
+			local parent = Widget.get(wd.parent)
+			maxW = math.min(maxW, parent.realW)
+		else
+			maxW = math.min(maxW, love.graphics.getWidth())
+		end
+		
+		wd.realW = math.max(lastWidth + wd.padding, maxW)
+		wd.realH = math.max(wd.h, tallestChild)
 
 		if debugLines then
 			wd.drawLines = function()
@@ -257,7 +260,7 @@ layoutFunctions = {
 				local lastWidth = 0
 				for i,chID in ipairs(wd.children) do
 					local child = Widget.get(chID)
-					love.graphics.rectangle("line", wd.realX+wd.padding+lastWidth, wd.realY+wd.padding, child.realW, wd.realH - wd.padding*2)
+					love.graphics.rectangle("line", wd.realX+wd.padding+lastWidth, wd.realY+wd.padding, child.realW, child.realH - wd.padding*2)
 					lastWidth = lastWidth + child.realW + wd.padding
 				end
 			end
@@ -276,27 +279,19 @@ layoutFunctions = {
 					halign = child.halign
 				end
 
-				if (child.w == "parent") then
-					child.realW = wd.realW - wd.padding*2
-				else
-					child.realW = math.min(child.w, wd.realW-wd.padding*2)
-				end
-				if (child.h == "parent") then
-					child.realH = wd.h - wd.padding*2
-				else
-					child.realH = math.min(child.h, wd.realH-wd.padding*2)
-				end
-
-				if(child.redraw)then
-					child.redraw()
-				end
-
 				if (halign == "left") then
 					child.realX = wd.padding
 				elseif (halign == "center") then
 					child.realX = wd.realW/2 - child.realW/2
 				elseif (halign == "right") then
 					child.realX = wd.realW - wd.padding - child.realW
+				end
+
+				child.realW = math.min(child.w, wd.realW-wd.padding*2)			
+				child.realH = child.h--math.min(child.h, wd.realH-wd.padding*2)
+				
+				if(child.redraw)then
+					child.redraw()
 				end
 
 				child.realY = lastHeight + wd.padding
@@ -314,6 +309,15 @@ layoutFunctions = {
 			end
 			child:refresh()
 		end
+		local maxH = wd.h
+		if(wd.parent) then
+			local parent = Widget.get(wd.parent)
+			maxH = math.min(maxH, parent.realH)
+		else
+			maxH = math.min(maxH, love.graphics.getHeight())
+		end
+
+		wd.realH = math.max(lastHeight + wd.padding, maxH)
 
 		if debugLines then
 			wd.drawLines = function()
@@ -410,6 +414,7 @@ function gui:update(wd)
 	if not wd.active then
 		return
 	end
+
 	--Atualiza posição do mouse
 	mx, my = love.mouse.getPosition()
 		
@@ -418,72 +423,61 @@ function gui:update(wd)
 	end
 end
 
-function gui:mousepressed(wd, x, y, b)	--Reescrever
-	if (not wd.active) then
-		return
-	end
-	if wd.realX and wd.realY and wd.realW and wd.realH then 	--Basicamente, se é um widget clicavel(label nao é)
-		if ((x > wd.realX) and (x < wd.realX + wd.realW) and (y > wd.realY) and (y < wd.realY + wd.realH)) then 	--Verifica se clicou dentro do widget
-			if (wd.wType == widgetType.button) then 	--Chama o callback se for botao
-				if(love.timer.getTime()-lastClick>clickCooldown)then
-					wd.callback(b)
-					lastClick = love.timer.getTime()
-				end
-				
-			elseif (wd.wType == widgetType.textBox) then 	--Transfere o foco se for textBoxFocus 
-				if textBoxFocus then
-					textBoxFocus.caret = false
-					textBoxFocus.hasFocus = false
-				end
-				textBoxFocus = wd
-				textBoxFocus.hasFocus = true
-			end
-			if (wd.children) then 
-				for i,chID in ipairs(wd.children) do
-					local child = Widget.get(chID)
-					self:mousepressed(child, x, y, b)
-				end
-			end
-		elseif (wd == textBoxFocus) then 	--Se wd é o textBox com foco e ele nao foi clicado, tira o foco dele
-			wd.hasFocus = false
-			textBoxFocus = nil
+function gui:requestFocus(wdID, e)
+	if (self.focus ~= -1) then
+		local lastFocus = Widget.get(self.focus)
+		lastFocus.hasFocus = false
+		if (lastFocus.onFocusLost) then
+			lastFocus:onFocusLost(e)
 		end
-
+	end
+	self.focus = wdID
+	local wd = Widget.get(wdID)
+	wd.hasFocus = true
+	if (wd.onFocusEnter) then
+		wd:onFocusEnter(e)
 	end
 end
 
+function gui:mousepressed(wd, x, y, b)	
+	if (not wd.active) then
+		return
+	end
+	local event = {time = love.timer.getTime(), x = x, y = y, b = b}
+	if (event.time-lastClick > clickCooldown) then
+		lastClick = love.timer.getTime()
+	else
+		return
+	end
+	if (isInRect(event.x, event.y, wd.realX, wd.realY, wd.realW, wd.realH)) then
+		if (wd.mousepressed) then
+			wd:mousepressed(event)
+		end
+	end
+	
+end
+
 function gui:textinput(t)
-	if textBoxFocus then
-		textBoxFocus.text = string.sub(textBoxFocus.text, 1, textBoxFocus.caretPos)..t..string.sub(textBoxFocus.text, textBoxFocus.caretPos+1)
-		textBoxFocus.caretPos = textBoxFocus.caretPos + 1
+	if (self.focus ~= -1) then
+		local focusWD = Widget.get(self.focus)
+		if (focusWD.textinput) then
+			focusWD:textinput(t)
+		end
 	end
 end
 
 function gui:keypressed(k)
-	if textBoxFocus then
-		if (k == "backspace" and textBoxFocus.caretPos > 0) then
-	        textBoxFocus.text = string.sub(textBoxFocus.text, 1, textBoxFocus.caretPos-1)..string.sub(textBoxFocus.text, textBoxFocus.caretPos+1)
-	        textBoxFocus.caretPos = textBoxFocus.caretPos - 1
-		end
-		if (k == "delete") then
-	        textBoxFocus.text = string.sub(textBoxFocus.text, 1, textBoxFocus.caretPos)..string.sub(textBoxFocus.text, textBoxFocus.caretPos+2)
-		end
-		
-		if (k == "right" and textBoxFocus.caretPos<string.len(textBoxFocus.text)) then
-			textBoxFocus.caretPos = textBoxFocus.caretPos + 1
-		end
-		if (k == "left" and textBoxFocus.caretPos>0) then
-			textBoxFocus.caretPos = textBoxFocus.caretPos - 1
-		end
-
-		if (k == "return") then
-			if (textBoxFocus.callback) then
-				textBoxFocus.callback()
-			end
+	if (self.focus ~= -1) then
+		local focusWD = Widget.get(self.focus)
+		if (focusWD.keypressed) then
+			focusWD:keypressed(k)
 		end
 	end
 end
 
+--Funcao extra
+function isInRect(x1,y1,x,y,w,h)
+	return (x1>x and x1<x+w and y1>y and y1<y+h)
+end
+
 return init()
---[[return setmetatable({new = init},
-	{__call = function(_, ...) return init(...) end})]]

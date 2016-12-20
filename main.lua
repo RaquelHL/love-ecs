@@ -2,22 +2,6 @@ require("Color")
 GUI = require("gui.core")
 
 function love.load()
-	--[[fr = GUI:Frame({color = Color(50,50,50), layout = "boxV", childHalign = "left", padding = 5})
-	
-	fr1 = GUI:Frame({color = Color(50), w = 300, layout = "boxV", panelType = "textBox"})
-	fr2 = GUI:Frame({color = Color(50), w = 300, layout = "boxV", panelType = "textBox"})
-	txt1 = GUI:TextBox()
-	txt2 = GUI:TextBox()
-	txt3 = GUI:TextBox()
-	txt4 = GUI:TextBox()
-	
-	fr:addChild(txt1)
-	fr:addChild(txt2)
-	fr:addChild(txt3)
-	fr:addChild(txt4)]]
-	--fr:addChild(fr1)
-	--fr:addChild(fr2)
-
 
 	local go = {}
 	go.name = "Player"
@@ -37,11 +21,13 @@ function love.load()
 	go.components[1] = tr
 	go.components[2] = ren
 
-	frConsole = GUI:Frame({color = Color(200,200,200,150), layout = "boxV", padding = 1, h = 200, panelType = "textBox", y = 400})
+	love.window.setMode(800, 700, {vsync = false})
+
+
+	frConsole = GUI:Frame({color = Color(200,200,200,150), layout = "boxV", padding = 1, h = 200, w = "parent", panelType = "textBox", y = -200, childHalign = "left"})
 
 	initInspector(go)
 
-	love.window.setMode(800, 600, {vsync = false})
 end
 
 _print = print
@@ -53,18 +39,21 @@ function print(...)
 end
 
 function initInspector(go)
-	fr = GUI:Frame({color = Color(150,150,150,150), layout = "boxV", w = 250, h=400, panelType = "textBox", padding = 5})
+	fr = GUI:Frame({x = 2, y = 2, color = Color(150,150,150,150), layout = "boxV", w = 250, h="content", panelType = "box", padding = 5})
+	
 	fr:addChild(GUI:Label({text = go.name, h = 30}))
 
 	for k,v in pairs(go.components) do
-		fr:addChild(componentBox(v))
+		local compBox = componentBox(v)
+		fr:addChild(compBox)
 	end
+	fr:addChild(GUI:Button({text = "teste", callback = function(e) print("Clicou!") end}))
 end
 
 function componentBox(comp)
-	frComp = GUI:Frame({color = Color(180,180,180,150), layout = "gridH", w = "parent", h=200, panelType = "textBox", padding = 0})
-	frLabel = GUI:Frame({color = Color(50,50,50), layout = "boxV", weight = 0.5, childHalign = "center", padding = 5})
-	frText = GUI:Frame({color = Color(50,50,50), layout = "boxV", childHalign = "left", padding = 5})
+	frComp = GUI:Frame({color = Color(180,180,180,150), layout = "gridH", w = "parent", h = 300, panelType = "box", padding = 0})
+	frLabel = GUI:Frame({color = Color(50,50,50), h = "content", layout = "boxV", weight = 0.5, childHalign = "center", padding = 5})
+	frText = GUI:Frame({color = Color(50,50,50), h = "content", layout = "boxV", childHalign = "left", padding = 5})
 	
 	frLabel:addChild(GUI:Label({text = comp.name, h = 20, w = "parent", textAlign = "left"}))
 	frText:addChild(GUI:Label({text = "", h = 20, w = "parent", textAlign = "left"}))
@@ -77,7 +66,6 @@ function componentBox(comp)
 	end
 	frComp:addChild(frLabel)
 	frComp:addChild(frText)
-
 	return frComp
 end
 
@@ -100,7 +88,5 @@ end
 
 function love.keypressed(k)
 	GUI:keypressed(k)
-    if(k=="return") then
-        --Gamestate.switch(game)
-	end
 end
+
