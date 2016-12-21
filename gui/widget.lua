@@ -33,13 +33,6 @@ local function new(default)
 		nWd.w = nWd.w or args.w or 0
 		nWd.h = nWd.h or args.h or 0
 
-		if (nWd.x < 0) then
-			nWd.x = love.graphics.getWidth() + nWd.x
-		end
-		if (nWd.y < 0) then
-			nWd.y = love.graphics.getHeight() + nWd.y
-		end
-
 		if nWd.w == "parent" then
 			nWd.w = 9999
 		end
@@ -64,6 +57,23 @@ local function new(default)
 		nWd.realH = nWd.h
 
 		nWd.active = true
+
+		local _refresh = nWd.refresh
+		function nWd:refresh()
+			if (nWd.x < 0) then
+				nWd.realX = love.graphics.getWidth() + nWd.x
+			end
+			if (nWd.y < 0) then
+				nWd.realY = love.graphics.getHeight() + nWd.y
+			end
+			if (nWd.w < -2) then
+				nWd.realW = love.graphics.getWidth() + nWd.w
+			end
+			if (nWd.h < -2) then
+				nWd.realH = love.graphics.getWidth() + nWd.h
+			end
+			_refresh(self)
+		end
 
 		nWd:refresh()	
 		

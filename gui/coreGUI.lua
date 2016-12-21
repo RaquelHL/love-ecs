@@ -325,7 +325,7 @@ layoutFunctions = {
 		if (wd.maxH < maxH) then
 			if (wd.autoScroll) then
 				wd.scrollOffset = maxH - wd.maxH + wd.scrollOffset
-				wd:refresh()
+				--wd:refresh()
 			end
 			maxH = wd.maxH
 		end
@@ -416,26 +416,17 @@ function gui:draw(wd)
 	if not wd.active then
 		return
 	end	
+
+	--Atualiza posição do mouse
+	local mX, mY = love.mouse.getPosition()
+	self.mouse = {x = mX, y = mY}
+
 	--Desenha widget
 	wd:drawSelf()
 
 	if wd.drawLines then
 		wd.drawLines()
 	end	
-end
-
-function gui:update(wd)
-	if not wd.active then
-		return
-	end
-
-	--Atualiza posição do mouse
-	local mX, mY = love.mouse.getPosition()
-	self.mouse = {x = mX, y = mY}
-		
-	--[[if (wd.update) then
-		wd:update()
-	end]]
 end
 
 function gui:requestFocus(wdID, e)
@@ -447,10 +438,12 @@ function gui:requestFocus(wdID, e)
 		end
 	end
 	self.focus = wdID
-	local wd = Widget.get(wdID)
-	wd.hasFocus = true
-	if (wd.onFocusEnter) then
-		wd:onFocusEnter(e)
+	if wdID ~= -1 then
+		local wd = Widget.get(wdID)
+		wd.hasFocus = true
+		if (wd.onFocusEnter) then
+			wd:onFocusEnter(e)
+		end
 	end
 end
 
@@ -464,6 +457,7 @@ function gui:mousepressed(wd, x, y, b)
 	else
 		--return
 	end
+	self:requestFocus(-1)
 	if (isInRect(event.x, event.y, wd.realX, wd.realY, wd.realW, wd.realH)) then
 		if (wd.mousepressed) then
 			wd:mousepressed(event)

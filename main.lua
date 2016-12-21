@@ -1,25 +1,12 @@
---Principais
-require("GameObject")
-require("Scene")
+require("ecsCore")
 
---Componentes
-require("Component")
-require("Transform")
-require("Renderer")
-require("BoxCollider")
-require("SpriteAnimator")
-require("PlayerInput")
-require("CharacterMotor")
+GUI = require("gui.coreGUI")
 
---Outros
-require("Color")
-require("Vector")
-ResourceMgr = require("ResourceManager")
+require("scripts.PlayerInput")
+require("scripts.CharacterMotor")
 
 local bump = require("lib.bump")
 local bumpdebug = require("lib.bump_debug")
-
-local pprintList = {}
 
 function love.load()
 
@@ -61,6 +48,8 @@ function love.load()
 	--Cria cena de teste
 	scene = Scene()
 
+	pprint("teste", "a")
+
 	--[[pai = GameObject("pai",{Renderer("tile8", Color(255, 0, 0, 128))}):newInstance()
 	pai2 = GameObject("pai",{Renderer("tile8", Color(255, 0, 0, 128))}):newInstance()
 	pai.transform:setScale(2,2)
@@ -76,6 +65,8 @@ function love.load()
 	scene:addGO(player)
 
 
+	debugTool.initInspector(player)
+
 end
 
 function love.update(dt)
@@ -90,27 +81,9 @@ end
 
 function love:draw()
 	scene:draw()
-
 	--bumpdebug.draw(physics)
-
-	love.graphics.setColor(0, 0, 0)
-	local j = 0
-	for i,v in ipairs(pprintList) do
-		love.graphics.print(v, 10, j*10)
-		pprintList[i] = nil
-		j = j + 1
-	end
-	for k,v in pairs(pprintList) do
-		love.graphics.print(v, 10, j*10)
-		j = j + 1
-	end
 end
 
---Print para depurar valores contínuos
-function pprint(text, name)
-	if name then
-		pprintList[name] = text
-	else
-		pprintList[#pprintList+1] = text
-	end
-end
+
+require("debugTool")
+debugTool.enable()
