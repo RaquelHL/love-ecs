@@ -22,9 +22,11 @@ function love.load()
 	go.components[2] = ren
 
 	love.window.setMode(800, 700, {vsync = false})
+	clickCount = 0
 
+	frConsole = GUI:Frame({color = Color(200,200,200,150), layout = "boxV", padding = 1, h = 200, w = "parent", maxH = 200,
+		panelType = "textBox", y = -200, childHalign = "left", allowScrolling = true})
 
-	frConsole = GUI:Frame({color = Color(200,200,200,150), layout = "boxV", padding = 1, h = 200, w = "parent", panelType = "textBox", y = -200, childHalign = "left"})
 
 	initInspector(go)
 
@@ -35,7 +37,7 @@ function print(...)
 	_print(...)
 
 	local args = {...}
-	frConsole:addChild(GUI:Label({text = args[1], w = "parent", textAlign = "left", h = 10}))
+	frConsole:addChild(GUI:Label({text = args[1], w = "parent", textAlign = "left"}))
 end
 
 function initInspector(go)
@@ -47,7 +49,7 @@ function initInspector(go)
 		local compBox = componentBox(v)
 		fr:addChild(compBox)
 	end
-	fr:addChild(GUI:Button({text = "teste", callback = function(e) print("Clicou!") end}))
+	fr:addChild(GUI:Button({text = "teste", callback = function(e) print("Clicou! "..clickCount) clickCount = clickCount + 1 end}))
 end
 
 function componentBox(comp)
@@ -80,6 +82,11 @@ end
 
 function love.mousepressed(x,y,b)
     GUI:mousepressed(fr, x, y, b)
+    GUI:mousepressed(frConsole, x, y, b)
+end
+
+function love.wheelmoved(x, y)
+	GUI:wheelmoved(x, y)
 end
 
 function love.textinput(t)

@@ -18,7 +18,7 @@ local function newDefaultButton()
 	}
 
 	function bt:drawSelf()
-		if ((mx > self.realX) and (mx < self.realX + self.realW) and (my > self.realY) and (my < self.realY + self.realH)) then 	--Se o mouse estiver em cima do botao
+		if ((self.gui.mouse.x > self.realX) and (self.gui.mouse.x < self.realX + self.realW) and (self.gui.mouse.y > self.realY) and (self.gui.mouse.y < self.realY + self.realH)) then 	--Se o mouse estiver em cima do botao
 			love.graphics.setColor(self.hoverColor:value())
 		else
 			love.graphics.setColor(self.color:value())
@@ -52,6 +52,7 @@ local function newDefaultButton()
 		if (self.callback) then
 			self:callback(e)
 		end
+		return true
 	end
 	
 	return bt

@@ -267,7 +267,7 @@ layoutFunctions = {
 		end
 	end,
 	boxV = function(wd)
-		local lastHeight = 0
+		local lastHeight = -wd.scrollOffset
 		for i,chID in ipairs(wd.children) do
 			local child = Widget.get(chID)
 			if child.active == true then
@@ -309,6 +309,9 @@ layoutFunctions = {
 			end
 			child:refresh()
 		end
+
+		wd.contentHeight = lastHeight + wd.scrollOffset
+
 		local maxH = wd.h
 		if(wd.parent) then
 			local parent = Widget.get(wd.parent)
@@ -317,14 +320,25 @@ layoutFunctions = {
 			maxH = math.min(maxH, love.graphics.getHeight())
 		end
 
-		wd.realH = math.max(lastHeight + wd.padding, maxH)
+		maxH = math.max(lastHeight + wd.padding, maxH)
+
+		if (wd.maxH < maxH) then
+			if (wd.autoScroll) then
+				wd.scrollOffset = maxH - wd.maxH + wd.scrollOffset
+				wd:refresh()
+			end
+			maxH = wd.maxH
+		end
+		wd.realH = math.min(maxH)
+
+
 
 		if debugLines then
 			wd.drawLines = function()
 				love.graphics.setColor(255, 0, 255)
 				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
 				love.graphics.setColor(0,255,0)
-				local lastHeight = 0
+				local lastHeight = -wd.scrollOffset
 				for i,chID in ipairs(wd.children) do
 					local child = Widget.get(chID)
 					love.graphics.rectangle("line", wd.realX+wd.padding, wd.realY+wd.padding+lastHeight, wd.realW - wd.padding*2, child.realH)
@@ -416,11 +430,12 @@ function gui:update(wd)
 	end
 
 	--Atualiza posição do mouse
-	mx, my = love.mouse.getPosition()
+	local mX, mY = love.mouse.getPosition()
+	self.mouse = {x = mX, y = mY}
 		
-	if (wd.update) then
+	--[[if (wd.update) then
 		wd:update()
-	end
+	end]]
 end
 
 function gui:requestFocus(wdID, e)
@@ -447,7 +462,7 @@ function gui:mousepressed(wd, x, y, b)
 	if (event.time-lastClick > clickCooldown) then
 		lastClick = love.timer.getTime()
 	else
-		return
+		--return
 	end
 	if (isInRect(event.x, event.y, wd.realX, wd.realY, wd.realW, wd.realH)) then
 		if (wd.mousepressed) then
@@ -473,6 +488,19 @@ function gui:keypressed(k)
 			focusWD:keypressed(k)
 		end
 	end
+end
+
+function gui:wheelmoved(x, y)
+	if (self.focus ~= -1) then
+		local focusWD = Widget.get(self.focus)
+		if (focusWD.wheelmoved) then
+			focusWD:wheelmoved(x, y)
+		end
+	end
+end
+
+function gui:isMouseHovering(wd)
+	return isInRect(self.mouse.x, self.mouse.y, wd.realX, wd.realY, wd.realW, wd.realH)
 end
 
 --Funcao extra

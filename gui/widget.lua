@@ -46,6 +46,13 @@ local function new(default)
 		if nWd.h == "parent" then
 			nWd.h = 9999
 		end
+		if nWd.maxW == "parent" then
+			nWd.maxW = 9999
+		end
+		if nWd.maxH == "parent" then
+			nWd.maxH = 9999
+		end
+
 		if nWd.h == "content" then
 			nWd.h = -1
 		end
