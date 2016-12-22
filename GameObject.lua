@@ -44,6 +44,10 @@ function GameObject:addComponent(c)
 	c.go = self
 	self.components[c.name] = c
 	self[c.name] = c
+
+	if self.isInstance then
+		c:init()
+	end
 end
 
 function GameObject:removeComponent(c)

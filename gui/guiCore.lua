@@ -1,10 +1,10 @@
 local BASE = (...):match('(.-)[^%.]+$')	--Aparentemente pega o caminho até o diretorio do arquivo atual. Não sei como.
 
 local gui = {}   
-gui.__index = gui
+--gui.__index = gui
 
 
-local debugLines = false
+gui.debugLines = false
 
 widgetType = {
 	frame = 1,
@@ -90,24 +90,22 @@ layoutFunctions = {
 		
 		wd.realH = math.min(wd.h, maxHeight)
 
-		if debugLines then
-			wd.drawLines = function()
-				love.graphics.setColor(255, 0, 255)
-				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
-				love.graphics.setColor(0,255,0)
-				local totalWeight = 0
-				for i,chID in ipairs(wd.children) do
-					local child = Widget.get(chID)
-					totalWeight = totalWeight + child.weight
-				end
-				local baseWidth = wd.realW / totalWeight
-				local lastWidth = 0
-				for i,chID in ipairs(wd.children) do
-					local child = Widget.get(chID)
-					local boxWidth = baseWidth * child.weight
-					love.graphics.rectangle("line", wd.realX+wd.padding+lastWidth, wd.realY+wd.padding, boxWidth - wd.padding*2, wd.realH - wd.padding*2)
-					lastWidth = lastWidth + boxWidth
-				end
+		wd.drawLines = function()
+			love.graphics.setColor(255, 0, 255)
+			love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
+			love.graphics.setColor(0,255,0)
+			local totalWeight = 0
+			for i,chID in ipairs(wd.children) do
+				local child = Widget.get(chID)
+				totalWeight = totalWeight + child.weight
+			end
+			local baseWidth = wd.realW / totalWeight
+			local lastWidth = 0
+			for i,chID in ipairs(wd.children) do
+				local child = Widget.get(chID)
+				local boxWidth = baseWidth * child.weight
+				love.graphics.rectangle("line", wd.realX+wd.padding+lastWidth, wd.realY+wd.padding, boxWidth - wd.padding*2, wd.realH - wd.padding*2)
+				lastWidth = lastWidth + boxWidth
 			end
 		end
 	end,
@@ -175,24 +173,22 @@ layoutFunctions = {
 			child:refresh()
 		end
 
-		if debugLines then
-			wd.drawLines = function()
-				love.graphics.setColor(255, 0, 255)
-				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
-				love.graphics.setColor(0,255,0)
-				local totalWeight = 0
-				for i,chID in ipairs(wd.children) do
-					local child = Widget.get(chID)
-					totalWeight = totalWeight + child.weight
-				end
-				local baseHeight = wd.realH / totalWeight
-				local lastHeight = 0
-				for i,chID in ipairs(wd.children) do
-					local child = Widget.get(chID)
-					local boxHeight = baseHeight * child.weight
-					love.graphics.rectangle("line", wd.realX+wd.padding, wd.realY+wd.padding+lastHeight, wd.realW - wd.padding*2, boxHeight - wd.padding*2)
-					lastHeight = lastHeight + boxHeight
-				end
+		wd.drawLines = function()
+			love.graphics.setColor(255, 0, 255)
+			love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
+			love.graphics.setColor(0,255,0)
+			local totalWeight = 0
+			for i,chID in ipairs(wd.children) do
+				local child = Widget.get(chID)
+				totalWeight = totalWeight + child.weight
+			end
+			local baseHeight = wd.realH / totalWeight
+			local lastHeight = 0
+			for i,chID in ipairs(wd.children) do
+				local child = Widget.get(chID)
+				local boxHeight = baseHeight * child.weight
+				love.graphics.rectangle("line", wd.realX+wd.padding, wd.realY+wd.padding+lastHeight, wd.realW - wd.padding*2, boxHeight - wd.padding*2)
+				lastHeight = lastHeight + boxHeight
 			end
 		end
 	end,
@@ -252,17 +248,15 @@ layoutFunctions = {
 		wd.realW = math.max(lastWidth + wd.padding, maxW)
 		wd.realH = math.max(wd.h, tallestChild)
 
-		if debugLines then
-			wd.drawLines = function()
-				love.graphics.setColor(255, 0, 255)
-				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
-				love.graphics.setColor(0,255,0)
-				local lastWidth = 0
-				for i,chID in ipairs(wd.children) do
-					local child = Widget.get(chID)
-					love.graphics.rectangle("line", wd.realX+wd.padding+lastWidth, wd.realY+wd.padding, child.realW, child.realH - wd.padding*2)
-					lastWidth = lastWidth + child.realW + wd.padding
-				end
+		wd.drawLines = function()
+			love.graphics.setColor(255, 0, 255)
+			love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
+			love.graphics.setColor(0,255,0)
+			local lastWidth = 0
+			for i,chID in ipairs(wd.children) do
+				local child = Widget.get(chID)
+				love.graphics.rectangle("line", wd.realX+wd.padding+lastWidth, wd.realY+wd.padding, child.realW, child.realH - wd.padding*2)
+				lastWidth = lastWidth + child.realW + wd.padding
 			end
 		end
 	end,
@@ -332,18 +326,15 @@ layoutFunctions = {
 		wd.realH = math.min(maxH)
 
 
-
-		if debugLines then
-			wd.drawLines = function()
-				love.graphics.setColor(255, 0, 255)
-				love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
-				love.graphics.setColor(0,255,0)
-				local lastHeight = -wd.scrollOffset
-				for i,chID in ipairs(wd.children) do
-					local child = Widget.get(chID)
-					love.graphics.rectangle("line", wd.realX+wd.padding, wd.realY+wd.padding+lastHeight, wd.realW - wd.padding*2, child.realH)
-					lastHeight = lastHeight + child.realH + wd.padding
-				end
+		wd.drawLines = function()
+			love.graphics.setColor(255, 0, 255)
+			love.graphics.rectangle("line", wd.realX, wd.realY, wd.realW, wd.realH)
+			love.graphics.setColor(0,255,0)
+			local lastHeight = -wd.scrollOffset
+			for i,chID in ipairs(wd.children) do
+				local child = Widget.get(chID)
+				love.graphics.rectangle("line", wd.realX+wd.padding, wd.realY+wd.padding+lastHeight, wd.realW - wd.padding*2, child.realH)
+				lastHeight = lastHeight + child.realH + wd.padding
 			end
 		end
 	end
@@ -365,7 +356,6 @@ local function init()
 	fontt = font or love.graphics.getFont()
     local texDefaultPanel = love.graphics.newImage(BASE.."/defaultPanel.png")
     texDefaultPanel:setFilter("nearest","nearest")
-    --gui:newPanelType("button", texDefaultPanel, 1, 1)
     gui:newPanelType("textBox", texDefaultPanel, 1, 1)
 	love.keyboard.setKeyRepeat(true)
 	return gui
@@ -413,6 +403,9 @@ function gui:newPanel(pType, w, h)
 end
 
 function gui:draw(wd)
+	if not wd then
+		return
+	end
 	if not wd.active then
 		return
 	end	
@@ -424,7 +417,7 @@ function gui:draw(wd)
 	--Desenha widget
 	wd:drawSelf()
 
-	if wd.drawLines then
+	if gui.debugLines and wd.drawLines then
 		wd.drawLines()
 	end	
 end

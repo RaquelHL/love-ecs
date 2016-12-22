@@ -7,24 +7,33 @@
 Scene = {}
 Scene.__index = Scene
 
-local function new()
+local function new(name)
 	local s = {}
 	setmetatable(s, Scene)
 
 	s.gameObjects = {}
+	s.name = name
+
+	ECS:registerScene(s)
 
 	return s
 end
 
-function Scene:update(dt)
+function Scene:_update(dt)
 	for k,go in pairs(self.gameObjects) do
 		go:update(dt)
 	end
+	if self.update then
+		self:update(dt)
+	end
 end
 
-function Scene:draw()
+function Scene:_draw()
 	for k,go in pairs(self.gameObjects) do
  			go:draw()
+	end
+	if self.draw then
+		self:draw()
 	end
 end
 
@@ -154,7 +163,7 @@ function Scene:loadMap(name)
 	if(map.backgroundcolor) then
 		love.graphics.setBackgroundColor(map.backgroundcolor)
 	end
-	love.window.setMode(map.width*map.tilewidth, map.height*map.tileheight, flags)
+	love.window.setMode(map.width*map.tilewidth, map.height*map.tileheight)
 end
 
 setmetatable(Scene, {__call = function(_, ...) return new(...) end})

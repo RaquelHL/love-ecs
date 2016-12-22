@@ -81,10 +81,10 @@ local function newDefaultTextBox()
 			end
 		end,
 		["return"] = function(tb)
+			tb.gui:requestFocus(-1)
 			if (tb.callback) then
 				tb.callback(tb)
 			end
-			tb.gui:requestFocus(-1)
 		end,
 		home = function(tb)
 			tb.caretPos = 0
@@ -105,7 +105,7 @@ local function newDefaultTextBox()
 
 	function tb:textinput(t)
 		self.text = string.sub(self.text, 1, self.caretPos)..t..string.sub(self.text, self.caretPos+1)
-		self.caretPos = self.caretPos + 1
+		self.caretPos = math.min(self.caretPos + 1, string.len(self.text))
 	end
 	
 	function tb:keypressed(k)

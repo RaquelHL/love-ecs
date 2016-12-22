@@ -6,16 +6,33 @@ local enabled = false
 local pprintList = {}
 
 
+local function init()
+	initConsole()
+end
 
-function debugTool.enable()
-	enabled = true
+function debugTool.toggle()
+	enabled = not enabled
+end
 
-	frConsole = GUI:Frame({color = Color(80,80,80,150), layout = "boxV", padding = 1, x = 250, y = -200, h = 200, w = -250, maxH = 200,
-		panelType = "textBox", y = -200, childHalign = "left", allowScrolling = true})
+function initConsole()
+	frConsole = GUI:Frame({color = Color(80,80,80,150), layout = "gridV", padding = 1, x = 250, y = -200, h = 200, w = -250, maxH = 200,
+		panelType = "textBox", y = -200})
 
-
-	--initInspector()
-
+	frLog = GUI:Frame({color = Color(80,80,80,150), layout = "boxV", padding = 1, childHalign = "left", allowScrolling = true, maxH = 160})
+	txtCommand = GUI:TextBox({weight = 0.2, w = "parent", callback = function(self)
+		
+		local f, err = loadstring(self.text)
+		if f then
+			print(self.text)
+			f()
+		else
+			print(err)
+		end
+		self.text = ""
+		self.gui:requestFocus(self.id)
+	end})
+	frConsole:addChild(frLog)
+	frConsole:addChild(txtCommand)
 end
 
 function debugTool.initInspector(go)
@@ -28,9 +45,10 @@ function debugTool.initInspector(go)
 		local compBox = componentBox(v)
 		fr:addChild(compBox)
 	end
-	--fr:addChild(GUI:Button({text = "teste", callback = function(e) print("Clicou! "..clickCount) clickCount = clickCount + 1 end}))
-
-	frConsole:refresh()
+	
+	if frConsole then
+		frConsole:refresh()
+	end
 end
 
 local fieldList = {}
@@ -117,9 +135,12 @@ end
 _print = print
 function print(...)
 	_print(...)
-
-	local args = {...}
-	frConsole:addChild(GUI:Label({text = args[1], w = "parent", textAlign = "left"}))
+	if frLog then
+		local args = {...}
+		frLog:addChild(GUI:Label({text = tostring(args[1]), w = "parent", textAlign = "left"}))
+		frLog.scrollOffset = frLog.contentHeight - frLog.realH
+		frLog:refresh()
+	end
 end
 
 local _update = love.update
@@ -170,7 +191,9 @@ function love.mousepressed(x,y,b)
 	    if fr then
 		    GUI:mousepressed(fr, x, y, b)
 		end
-	    --GUI:mousepressed(frConsole, x, y, b)
+	    if frConsole then
+	    	GUI:mousepressed(frConsole, x, y, b)
+	    end
 	end
 end
 
@@ -196,21 +219,24 @@ end
 
 local _keypressed = love.keypressed
 function love.keypressed(k)
-
 	if (k=="f2") then
-		enabled = not enabled
+		debugTool.toggle()
 		return
 	end
-	if _keypressed then
-		_keypressed(k)
-		if GUI.focus ~= -1 then
-    		return
-    	end
-	end
-
 
 	if enabled then
 		GUI:keypressed(k)
 	end
+	if _keypressed then
+		if GUI.focus ~= -1 then
+    		return
+    	end
+    	_keypressed(k)
+		
+	end
+
+
+	
 end
 
+return init()

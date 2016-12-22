@@ -2,14 +2,17 @@ local ResourceManager = {}
 
 local resources = {}
 
+ResourceManager.textureFolder = "textures"
+ResourceManager.scenesFolder = "scenes"
+
 local creatorFunctions = {
 	texture = function(name)
 		local img = nil
- 		if(love.filesystem.exists("textures/"..name)) then
- 			img = love.graphics.newImage("textures/"..name)
+ 		if(love.filesystem.exists(ResourceManager.textureFolder.."/"..name)) then
+ 			img = love.graphics.newImage(ResourceManager.textureFolder.."/"..name)
  		else
- 			if love.filesystem.exists("textures/"..name..".png") then
- 				img = love.graphics.newImage("textures/"..name..".png")
+ 			if love.filesystem.exists(ResourceManager.textureFolder.."/"..name..".png") then
+ 				img = love.graphics.newImage(ResourceManager.textureFolder.."/"..name..".png")
  			end
  		end
  		return img
@@ -22,7 +25,7 @@ local creatorFunctions = {
 		if not resources.anim then
 			resources.anim = {}
 		end
-		local animS = require("textures."..name)
+		local animS = require(ResourceManager.textureFolder.."."..name)
 		for i,a in ipairs(animS) do
 			print("Adding "..a.name.."(anim)")
 			resources.anim[a.name] = a
@@ -31,6 +34,9 @@ local creatorFunctions = {
 	end,
 	anim = function(name)
 		error("Animation '"..name.."' not found!")
+	end,
+	scene = function(name)
+		return dofile(ResourceManager.scenesFolder.."/"..name..".lua")
 	end
 }
 
