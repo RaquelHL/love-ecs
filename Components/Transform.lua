@@ -18,22 +18,24 @@ function Transform:new(x, y, o, sx, sy)
 	return self
 end
 
+
+
+function Transform:move(x, y)
+	if (type(x) == "number") then
+		self.localPos.x = self.localPos.x + x
+		self.localPos.y = self.localPos.y + y
+	else
+		self.localPos = self.localPos + x
+	end
+	self:refresh()
+end
+
 function Transform:moveTo(x, y)
 	if (type(x) == "number") then
 		self.localPos.x = x
 		self.localPos.y = y
 	else
 		self.localPos = x
-	end
-	self:refresh()
-end
-
-function Transform:translate(x, y)
-	if (type(x) == "number") then
-		self.localPos.x = self.localPos.x + x
-		self.localPos.y = self.localPos.y + y
-	else
-		self.localPos = self.localPos + x
 	end
 	self:refresh()
 end
@@ -92,5 +94,9 @@ function Transform:refresh()
 	end
 	for k,v in pairs(self.go.children) do
 		v.transform:refresh()
+	end
+	
+	if self.go.collider and self.go.collider.autoScale then
+		self.go.collider:autoUpdate()
 	end
 end

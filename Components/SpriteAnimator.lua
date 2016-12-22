@@ -42,12 +42,12 @@ end
 function SpriteAnimator:setAnim(name)
 	self.anim = ResourceMgr.get("anim", name)
 	if (self.go) then
-		self.go.renderer.texture = self.anim.texture
-		self.go.renderer.quad = self.anim.frames[1].quad
+		self.go.renderer:setTexture(self.anim.texture, self.anim.frames[1].quad)
 		if (self.go.collider) then
-			self.go.collider:updateRect(0,0,self.anim.colBox.w, self.anim.colBox.h)
-			self.go.renderer.offsetX = self.anim.offsetX
-			self.go.renderer.offsetY = self.anim.offsetY
+			self.go.collider:updateRect(self.anim.colBox.w/2,self.anim.colBox.h/2,self.anim.colBox.w, self.anim.colBox.h)
+		end
+		if (self.anim.offset) then
+			self.go.renderer.offset = self.anim.offset
 		end
 	end
 end

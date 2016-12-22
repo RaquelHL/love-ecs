@@ -36,7 +36,7 @@ local creatorFunctions = {
 		error("Animation '"..name.."' not found!")
 	end,
 	scene = function(name)
-		return dofile(ResourceManager.scenesFolder.."/"..name..".lua")
+		return require(ResourceManager.scenesFolder.."."..name)
 	end
 }
 

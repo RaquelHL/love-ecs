@@ -10,8 +10,7 @@ return {
 		loop = true,
 		tilewidht = 64,
 		tileheight = 64,
-		offsetX = -24,
-		offsetY = -18,
+		offset = vector(-32, -41),
 		colBox = {
 			w = 20,
 			h = 46
@@ -31,8 +30,7 @@ return {
 		loop = false,
 		tilewidht = 64,
 		tileheight = 64,
-		offsetX = -24,
-		offsetY = -18,
+		offset = vector(-32, -40),
 		colBox = {
 			w = 20,
 			h = 46
@@ -54,8 +52,7 @@ return {
 		loop = true,
 		tilewidht = 64,
 		tileheight = 64,
-		offsetX = -24,
-		offsetY = -18,
+		offset = vector(-32, -40),
 		colBox = {
 			w = 20,
 			h = 46
@@ -77,8 +74,7 @@ return {
 		loop = false,
 		tilewidht = 64,
 		tileheight = 64,
-		offsetX = -24,
-		offsetY = -18,
+		offset = vector(-32, -40),
 		colBox = {
 			w = 20,
 			h = 46

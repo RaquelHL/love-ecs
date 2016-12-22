@@ -6,19 +6,31 @@
 BoxCollider = Component("collider")
 
 
-function BoxCollider:new(w, h, offsetX, offsetY)
+function BoxCollider:new(w, h, offset)
 	
 	self.w = w or 1
 	self.h = h or 1
-	self.offsetX = offsetX or 0
-	self.offsetY = offsetY or 0
+	self.offset = offset or vector(0,0)
+
+	self.autoScale = true
+	if w or h then
+		self.autoScale = false
+	end
 
 	return self
 end
 
 function BoxCollider:init()
 	assert(self.go, self.name.." component has no GameObject")
-	
+
+	physics:add(self.go, self.go.transform.pos.x, self.go.transform.pos.y, self.w, self.h)
+
+	if self.autoScale then
+		self:autoUpdate()
+	end
+end
+
+function BoxCollider:autoUpdate()
 	if (self.go.renderer) then 		--Se não tiver largura e altura, pega essas informações da textura do renderer
 		if (self.go.renderer.texture) then
 			if (self.go.renderer.quad) then
@@ -30,32 +42,27 @@ function BoxCollider:init()
 					self.h = h * self.go.transform.scale.y
 				end
 			else
-				if (self.w == -1) then
-					self.w = self.go.renderer.texture:getWidth() * self.go.transform.scale.x
-				end
-				if (self.h == -1) then
-					self.h = self.go.renderer.texture:getHeight() * self.go.transform.scale.y
-				end
+				self.w = self.go.renderer.texture:getWidth() * self.go.transform.scale.x
+				self.h = self.go.renderer.texture:getHeight() * self.go.transform.scale.y
+
+				self.offset = -self.go.renderer.offset
 			end
 		end
 	end
-	
-	physics:add(self.go, self.go.transform.pos.x + self.offsetX, self.go.transform.pos.y + self.offsetY, self.w, self.h)
+
+	self:updateRect(nil,nil,nil,nil,true)
 end
 
-function BoxCollider:draw()
-	if self.go.debugCollider then
-		love.graphics.setColor(220, 50, 220)
-		love.graphics.rectangle("line", self.go.transform.pos.x + self.offsetX, self.go.transform.pos.y + self.offsetY, self.w, self.h)
-	end
-end
-
-function BoxCollider:updateRect(x, y, w, h)
-	self.offsetX = x or self.offsetX
-	self.offsetY = y or self.offsetY
+function BoxCollider:updateRect(x, y, w, h, a)
+	self.offset.x = x or self.offset.x
+	self.offset.y = y or self.offset.y
 	self.w = w or self.w
 	self.h = h or self.h
-	physics:update(self.go, self.go.transform.pos.x + self.offsetX, self.go.transform.pos.y + self.offsetY, self.w, self.h)
+	physics:update(self.go, self.go.transform.pos.x, self.go.transform.pos.y, self.w, self.h)
+	
+	if not a then
+		self.autoScale = false
+	end
 end
 
 function BoxCollider:destroy()
