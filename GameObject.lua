@@ -96,6 +96,9 @@ end
 
 function GameObject:addChild(ch)
 	ch.parent = self
+	if self.scene then
+		ch.scene = self.scene
+	end
 	self.children[#self.children+1] = ch
 end
 
@@ -136,6 +139,13 @@ function GameObject:newInstance(args)
 	go:init()
 
 	return go
+end
+
+function GameObject:setScene(s)
+	self.scene = s
+ 	for k,ch in pairs(self.children) do
+ 		ch.setScene(s)
+ 	end
 end
 
 function GameObject:destroy()

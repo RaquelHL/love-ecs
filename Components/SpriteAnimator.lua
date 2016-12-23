@@ -51,3 +51,21 @@ function SpriteAnimator:setAnim(name)
 		end
 	end
 end
+
+function SpriteAnimator:nextFrame()
+	if (self.curFrame + 1 > self.anim.size) then
+		if (self.anim.loop) then
+			return 1
+		else
+			return self.anim.size
+		end
+	end
+	return self.curFrame + 1
+end
+
+function SpriteAnimator:gotoFrame(f)
+	if(f <= self.anim.size) then
+		self.curFrame = f
+		self.go.renderer.quad = self.anim.frames[self.curFrame].quad
+	end
+end

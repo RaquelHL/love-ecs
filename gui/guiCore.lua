@@ -490,7 +490,6 @@ function gui:isMouseHovering(wd)
 	return isInRect(self.mouse.x, self.mouse.y, wd.realX, wd.realY, wd.realW, wd.realH)
 end
 
---Funcao extra
 function isInRect(x1,y1,x,y,w,h)
 	return (x1>x and x1<x+w and y1>y and y1<y+h)
 end
