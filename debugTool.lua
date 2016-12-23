@@ -125,6 +125,7 @@ end
 
 --Print para depurar valores contínuos
 function pprint(text, name)
+	text = tostring(text)
 	if name then
 		pprintList[name] = text
 	else

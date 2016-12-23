@@ -54,6 +54,9 @@ function BoxCollider:autoUpdate()
 end
 
 function BoxCollider:updateRect(x, y, w, h, a)
+	if not self.initialized then
+		return
+	end
 	self.offset.x = x or self.offset.x
 	self.offset.y = y or self.offset.y
 	self.w = w or self.w

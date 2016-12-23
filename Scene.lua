@@ -107,8 +107,7 @@ function Scene:loadMap(name)
 			    		if(l.properties.collision) then
 			    			if(map.tiles[l.data[curTile]].isSlope) then
 			    				local colliderGO = GameObject("col"..colCount, {BoxCollider(map.tilewidth, map.tileheight)})
-				    			colliderGO.transform.pos.x = i*map.tilewidth
-				    			colliderGO.transform.pos.y = j*map.tileheight
+				    			colliderGO.transform:moveTo(i*map.tilewidth, j*map.tileheight)
 				    			
 				    			colliderGO.collider.isSlope = true	
 				    			colliderGO.collider.rightY = map.tiles[l.data[curTile]].rightY
@@ -136,8 +135,8 @@ function Scene:loadMap(name)
 			    	if ((l.data[curTile] == 0 or i == (map.width-1) or closeCollider) and l.properties.collision and colW>0) then
 		    			colCount = colCount + 1
 		    			local colliderGO = GameObject("col"..colCount, {BoxCollider(colW*map.tilewidth, map.tileheight)})
-		    			colliderGO.transform.pos.x = colX
-		    			colliderGO.transform.pos.y = colY
+		    			colliderGO.transform:moveTo(colX, colY)
+
 		    			colliderGO.tileID = l.data[curTile]
 		    			if(l.data[curTile] == 21)then
 		    				colliderGO.isSlope = true	

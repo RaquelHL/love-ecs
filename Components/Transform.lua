@@ -18,7 +18,9 @@ function Transform:new(x, y, o, sx, sy)
 	return self
 end
 
-
+function Transform:init()
+	self:refresh()
+end
 
 function Transform:move(x, y)
 	if (type(x) == "number") then
@@ -65,6 +67,10 @@ end
 
 function Transform:forward()
 	return vector.fromAngle(self.o)
+end
+
+function Transform:right()
+	return vector.fromAngle(self.o + math.pi/2)
 end
 
 function Transform:setScale(x, y)

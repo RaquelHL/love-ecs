@@ -29,6 +29,7 @@ local function new(name)
 
 	comp.isComponent = true
 	comp.name = name
+	comp.initialized = false
 
 	comp.requiredComponents = {}
 
@@ -65,6 +66,7 @@ local function new(name)
 		for i,v in ipairs(self.requiredComponents) do
 			assert(self.go[v], self.name.." needs a "..v.." component")
 		end
+		self.initialized = true
 
 		if (self.init) then
 			self:init()
