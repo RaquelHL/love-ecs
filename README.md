@@ -41,6 +41,7 @@ Neste exemplo, simplesmente desenhamos uma textura(tile.png) na posição [200, 
 ### Estrutura
 ----------
 ![Estrutura](http://i.imgur.com/dPgHurY.png)
+
 Basicamente, o sistema deixa uma `Scene` ativa por vez, que funciona como um estado de jogo(menu, loading, jogo, etc). Uma `Scene` é composta por `GameObjects`, que são "entidades de jogo". Estes podem ter componentes e filhos(outras entidades). Tudo no jogo é uma entidade, o personagem, o inimigo, a parede, o chão, etc. Cada `GameObject` é responsável por realizar sua função. Por exemplo, a função do chão é desenhar a textura de chão onde ele está, e não deixar outras entidades passarem por ele. Essas funções são realizadas pelos componentes do chão. Então ele precisa ter um componente pra desenhar a textura(`Renderer`) e outro para não deixar nada passar(`BoxCollider`). A parede é a mesma coisa. 
 
 >Todos os `GameObjects` são criados com um componente já padrão: `Transform`. Sua função é guardar informações básicas de posicionamento, orientação e escala.
@@ -57,6 +58,7 @@ Outras entidades no jogo vão precisar realizar outras funções. Por isso, o si
 ##### Percurso das callbacks
 
 ![a](http://i.imgur.com/SZvOop6.png)
+
 Os componentes precisam ser chamados para que possam de fato realizar sua função. O diagrama acima explica o percurso das chamadas, desde a callback do LÖVE(`love.draw()`) até as callbacks de cada componente. O mesmo percurso é feito para o `love.update(dt)`.
 
 --A fazer: detalhar cada função
@@ -158,9 +160,15 @@ end
 Guarda a posição(`pos`), orientação(`o`) e escala(`scale`) local e global(real).
 O motivo dessas propriedades serem separadas em local e global é para quando o `GameObject` é filho de outro `GameObject`. Quando não existe um pai, os valores locais são iguais aos valores globais. 
 Quando existe um pai, os valores locais são do espaço local do pai, e os valores globais os locais transformados para o espaço global, levando em consideração a posição, orientaão e escala do pai:
-![espaço global e local](http://i.imgur.com/rPWwYQY.png)
+![espaço global e local](http://i.imgur.com/V3ha0s5.png)
+
 A lógica do jogo modifica apenas as propriedades locais. Caso, por algum motivo, seja necessário modificar as propriedades globais, é preciso fazer a transformação manualmente para a posição local que é referente a posição global desejada.(Porém, no momento, não há funções para auxiliar essa transformação)
 Além disso, não é recomendado a modificação direta das propriedades. Ao invés disso, use as funções do `Transform`.
+
+###### Construtor: `Transform(x, y, o, sx, sy)`
+`x` e `y`: localPos inicial
+`o`: localO inicial(em radianos)
+`sx` e `sy`: localScale inicial
 
 ###### Funções:
 ###### `:move(x, <y>)`
@@ -180,14 +188,116 @@ Retorna um `vector` de direção apontado para a frente do `Transform`
 ###### `:right()`
 Retorna um `vector` de direção apontado para a direita do `Transform`
 
--- A fazer
 ##### `Renderer`
+Desenha uma textura na tela
+###### Construtor: `Renderer(<texture>, <args>)
+`texture`: Objeto do tipo `Image` ou nome da imagem que o `Renderer` vai desenhar.
+`args`: Tabela com argumentos opcionais:
+- `pivot`: Qual vai ser o pivô para rotacionar a textura. Pode ser `top_left`, `top`, `top_right`, `left`, `center`, `right`, `bottom_left`, `bottom` ou `bottom_right`. O padrão é `center`.
+- `mirror`: Se a textura deve ser desenhada espelhada ou não. O padrão é `false`.
+- `color`: A Cor. O padrão é `Color(255)`(branco)
+###### Funções
+###### `:setTexture(texture, <quad>)`
+Para indicar a textura a ser desenhada. `texture` pode ser um objeto `Image` do löve ou um nome de uma imagem. `quad` é necessário caso a textura seja um spritesheet.
 
 ##### `BoxCollider`
->
+Solução de colisão temporária, usando a biblioteca `bump.lua`
+###### Construtor: `BoxCollider(<w>, <h>, <offset>)`
+`w` e `h` são a largura e altura da caixa de colisão. Caso sejam omitidos, esses valores são obtidos com a textura do Renderer, caso ele exista.
+`offset` é um `vector` da a posição esquerda superior desejada da caixa, em relação a posição x e y do `Transform`
 
 ##### `SpriteAnimator`
->
+Carrega uma `anim` e vai mudando a textura do `Renderer` de acordo com o frame da animação.
+###### Construtor: `SpriteAnimator(<anim>)`
+`anim` é, opcionalmente, a animação carregada inicialmente.
+
+###### Funções:
+###### `:setAnim(anim)`
+Carrega a `anim`
+###### `:nextFrame()`
+Avança um frame na animação atual; Volta para o primeiro frame se `anim.loop = true`
+###### `:gotoFrame(f)`
+Pula para o frame `f` da `anim` atual, caso o frame seja válido.
 
 ##### `Particle`
->
+Vai ser reescrita em breve.
+
+### GUI
+---
+##### `guiCore`
+É o núcleo da lib  para interface. Não está relacionada diretamente com o sistema entidade/componente.
+Uso:
+```lua
+GUI = require("guiCore")
+GUI:draw(widget)
+GUI:newPanelType(name, tex, borderS, centerS)
+GUI:requestFocus(wdID, e)
+GUI:mousepressed(wd, x, y, b)
+GUI:textinput(t)
+GUI:keypressed(k)
+GUI:wheelmoved(x, y)
+```
+
+##### `Widget`
+É a base para o componente principal da interface. Pode ter widgets filhos. Recebe as chamadas do `guiCore` e do pai.
+Atualmente existem tais widgets:
+###### `Frame`
+
+
+###### `Label`
+
+
+###### `Button`
+
+
+###### `TextBox`
+
+
+
+
+### Outros
+#### ResourceManager
+Foi criado para acabar com o problema de redundância na criação de recursos. Imagine, por exemplo, uma textura que é usada em duas partes diferentes de um jogo. Cada parte não sabe da existência da outra, então cada uma cria uma nova `Image` da textura, o que é dispendioso.
+O que o ResourceManager faz é manter uma tabela com todos os recursos do jogo. Assim, quando uma parte do jogo quer uma textura, ele chama o `ResourceMgr.get`, que retorna a textura se ela já existe, ou cria a textura, coloca na tabela de recursos, e a retorna. Quando a outra parte do jogo precisar dessa mesma textura, o ResourceManager vai retornar a mesma que ele já tinha criado antes.
+###### Funções:
+**`ResourceManager.get(type, name)`**
+Verifica a existencia do recurso do tipo `type` e nome `name`, tenta criar o recurso caso ele não exista, e retorna o recurso
+
+**`ResourceManager.add(type, name)`**
+Vai adicionar o recurso do tipe `type` e nome `name` caso ele não exista.
+
+###### Tipos suportados:
+**`texture`**: Textura normal. O ResourceManager tenta achar a textura dentro da pasta na variável `ResourceManager.textureFolder`, que é `textures` por padrão.
+**`animSheet`**: Arquivo lua de informação sobre animações em sprites. 
+Estrutura: 
+```lua
+->animSheet.lua
+return {
+    {
+        name = "nome da animação",
+    	texture = [Image da spritesheet],
+    	size = [quantidade de frames],
+    	timestep = [segundos entre frames],
+    	loop = [se volta pro começo ao chegar ao fim],
+    	tilewidht = [largura do quad],
+    	tileheight = [altura do quad],
+    	frames = {
+    		{quad = love.graphics.newQuad(...)},
+    		...
+    	}
+    },
+    ...
+}
+```
+**`anim`**: Animação criada anteriormente ao carregar um `animSheet`
+**`scene`**: Arquivo lua que retorna uma `Scene`. O ResourceManager procura na pasta na variável `ResourceManager.sceneFolder`, que é `scenes` por padrão.
+
+#### debugTool
+Ferramenta para auxiliar na depuração do jogo. É composta de um inspector e um console. O inspector analisa um `GameObject` e mostra todos os seus componentes e suas respectivas propriedades em um menu lateral. O console mostra mensagens passadas para o comando `print()`, e tem um textBox onde é possível executar comandos lua dentro do jogo, sendo possível acessar todas as variáveis globais, chamar funções, entre outros. "f2" é a tecla padrão para mostrar/esconder a ferramenta.
+###### Funções:
+**`debugTool.toggle()`**
+Mostra/esconde a ferramenta.
+**`debugTool.initInspector(go)`**
+Inicializa o inspector para mostrar as informações do gameObject `go` 
+**`pprint(m, <n>)`**
+Um print que mostra a mensagem `m` na tela. A mensagem é excluída após ser desenhada, portanto é uma boa função para monitar valores que mudam constantemente ao chamar `pprint(m)` a todo `update()`. Caso seja necessário que o valor fique na tela constantemente, é possível passar o parâmetro `n`, que dá um nome à mensagem. Mensagens com nome não são excluídas após serem desenhadas, mas podem ser alteradas chamando `pprint()` novamente usando o mesmo nome.
