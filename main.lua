@@ -24,5 +24,17 @@ function love.draw()
 	ECS:draw()
 end
 
+function love.mousepressed(x, y, b)
+    ECS:mousepressed(x,y,b)
+end
+
+function love.keypressed(k)
+    ECS:keypressed(k)
+end
+
+function love.textinput(t)
+    ECS:textinput(t)
+end
+
 require("debugTool")	--Aperta F2 pra abrir
 --debugTool.enable()

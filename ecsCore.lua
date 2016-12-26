@@ -68,6 +68,23 @@ function ecs:draw()
 	end
 end
 
+function ecs:mousepressed(x,y,b)
+	if self.currentScene and self.scenes[self.currentScene].mousepressed then
+		self.scenes[self.currentScene]:mousepressed(x,y,b)
+	end
+end
+
+function ecs:keypressed(k)
+	if self.currentScene and self.scenes[self.currentScene].keypressed then
+		self.scenes[self.currentScene]:keypressed(k)
+	end
+end
+
+function ecs:textinput(t)
+	if self.currentScene and self.scenes[self.currentScene].textinput then
+		self.scenes[self.currentScene]:textinput(t)
+	end
+end
 
 function initExtraPhysics()
 
