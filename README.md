@@ -268,6 +268,7 @@ Vai adicionar o recurso do tipe `type` e nome `name` caso ele não exista.
 
 ###### Tipos suportados:
 **`texture`**: Textura normal. O ResourceManager tenta achar a textura dentro da pasta na variável `ResourceManager.textureFolder`, que é `textures` por padrão.
+
 **`animSheet`**: Arquivo lua de informação sobre animações em sprites. 
 Estrutura: 
 ```lua
@@ -289,7 +290,9 @@ return {
     ...
 }
 ```
+
 **`anim`**: Animação criada anteriormente ao carregar um `animSheet`
+
 **`scene`**: Arquivo lua que retorna uma `Scene`. O ResourceManager procura na pasta na variável `ResourceManager.sceneFolder`, que é `scenes` por padrão.
 
 #### debugTool

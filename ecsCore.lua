@@ -9,10 +9,10 @@ require("Components.Renderer")
 require("Components.BoxCollider")
 require("Components.SpriteAnimator")
 
-ResourceMgr = require("ResourceManager")
+ResourceMgr = require("lib.resourceManager")
 
-require("Color")
-require("Vector")
+require("lib.color")
+require("lib.cector")
 
 
 local bump = require("lib.bump")
