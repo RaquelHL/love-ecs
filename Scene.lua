@@ -7,6 +7,8 @@
 Scene = {}
 Scene.__index = Scene
 
+local nextID = 0;
+
 local function new(name)
 	local s = {}
 	setmetatable(s, Scene)
@@ -41,6 +43,51 @@ function Scene:addGO(go)
 	assert(go.isInstance, "GameObject needs to be an instance")
 	go:setScene(self)
 	self.gameObjects[go.id] = go
+end
+
+function Scene:instantiate(go, args)
+	args = args or {}
+	local inst = {}
+	inst.components = {}
+	inst.children = {}
+	setmetatable(inst, GameObject)
+
+	for k,v in pairs(go) do 	--Copia valores
+		if v ~= go.components and v ~= go.children then
+			inst[k] = v
+		end
+	end
+
+	for k,c in pairs(go.components) do
+		inst:addComponent(c:clone())
+	end
+	for k,ch in pairs(go.children) do
+		inst:addChild(ch)	
+	end
+
+	go.nInstances = go.nInstances + 1
+
+	inst.name = args.name or go.name..go.nInstances and go.nInstances > 1 or go.name
+
+	inst.id = nextID
+	nextID = nextID + 1
+	
+
+	if inst.transform then
+		inst.transform.localPos = args.pos or inst.transform.localPos
+		inst.transform.o = args.o or inst.transform.o
+		inst.transform.localScale = args.scale or inst.transform.localScale
+	end
+
+	inst.active = true
+	inst.isInstance = true
+
+
+	inst:init()
+
+	self:addGO(inst)
+
+	return inst
 end
 
 function Scene:removeGO(go)

@@ -9,8 +9,6 @@ GameObject.__index = GameObject
 
 GameObject.debugCollider = false	--Desenha retangulos que representam a posição real dos colliders
 
-local nextID = 0;
-
 local function new(name, components)
 	components = components or {}
 	local go = {}
@@ -20,8 +18,6 @@ local function new(name, components)
 	go.isInstance = false
 	go.nInstances = 0	--Por enquanto só pra dar nome pras instancias
 	go.name = name or "GameObject"
-	go.id = nextID
-	nextID = nextID + 1
 	go.components = {}
 
 	go.toDestroy = false
@@ -100,45 +96,6 @@ function GameObject:addChild(ch)
 		ch.scene = self.scene
 	end
 	self.children[#self.children+1] = ch
-end
-
-function GameObject:newInstance(args)
-	args = args or {}
-	local go = {}
-	go.components = {}
-	go.children = {}
-	setmetatable(go, GameObject)
-
-	for k,v in pairs(self) do 	--Copia valores
-		if v ~= self.components and v ~= self.children then
-			go[k] = v
-		end
-	end
-
-	for k,c in pairs(self.components) do
-		go:addComponent(c:clone())
-	end
-	for k,ch in pairs(self.children) do
-		go:addChild(ch)	
-	end
-
-	self.nInstances = self.nInstances + 1
-
-	go.name = args.name or self.name..self.nInstances and self.nInstances > 1 or self.name
-
-	if go.transform then
-		go.transform.localPos = args.pos or go.transform.localPos
-		go.transform.o = args.o or go.transform.o
-		go.transform.localScale = args.scale or go.transform.localScale
-	end
-
-	go.active = true
-	go.isInstance = true
-
-
-	go:init()
-
-	return go
 end
 
 function GameObject:setScene(s)

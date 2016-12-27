@@ -1,18 +1,20 @@
+local BASE = (...):match('(.-)[^%.]+$')
+
 --Principais
-require("GameObject")
-require("Scene")
+require(BASE..".GameObject")
+require(BASE..".Scene")
 
 --Componentes
-require("Component")
-require("Components.Transform")
-require("Components.Renderer")
-require("Components.BoxCollider")
-require("Components.SpriteAnimator")
+require(BASE..".Component")
+require(BASE..".Components.Transform")
+require(BASE..".Components.Renderer")
+require(BASE..".Components.BoxCollider")
+require(BASE..".Components.SpriteAnimator")
 
 ResourceMgr = require("lib.resourceManager")
 
 require("lib.color")
-require("lib.cector")
+require("lib.vector")
 
 
 local bump = require("lib.bump")
